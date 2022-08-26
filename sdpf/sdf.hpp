@@ -13,6 +13,8 @@
 namespace sdpf::sdf {
 
 struct sdf : field<double> {  //运行阶段为只读数据结构
+    inline sdf(int w, int h)
+        : field(w, h) {}
     double* data = nullptr;
     int width = 0;
     int height = 0;

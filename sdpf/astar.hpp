@@ -14,7 +14,7 @@ struct node {  //寻路节点
 };
 
 struct context {  //寻路context
-    std::map<ivec2, node*> openlist, closelist;
+    std::map<navmesh::node*, node*> openlist{}, closelist{};
     node* processing = nullptr;
     node* result = nullptr;
     ivec2 target;
@@ -51,7 +51,7 @@ inline void start(context& ctx, navmesh::node* begin, navmesh::node* target, int
             break;
     }
 }
-inline void buildRoad(context& ctx, std::function<void(const navmesh::node*)> callback) {
+inline void buildRoad(context& ctx, std::function<void(navmesh::node*)> callback) {
     if (ctx.result) {
         auto p = ctx.result;
         while (p) {
@@ -63,10 +63,10 @@ inline void buildRoad(context& ctx, std::function<void(const navmesh::node*)> ca
 inline void step(context& ctx) {
     if (ctx.processing == NULL)
         return;
-    ctx.closelist[ctx.processing->position] = ctx.processing;
+    ctx.closelist[ctx.processing->navNode] = ctx.processing;
 
     std::vector<node*> ns;
-    for (auto it : ctx.processing->navNode->links) {
+    for (auto it : ctx.processing->navNode->ways) {
         navmesh::node* targetNavNode;
         if (it->minWidth > ctx.minPathWidth) {  //可以通过
             if (it->p1 == ctx.processing->navNode) {
@@ -74,9 +74,9 @@ inline void step(context& ctx) {
             } else {
                 targetNavNode = it->p1;
             }
-            if (ctx.openlist.find(targetNavNode->position) != ctx.openlist.end())
+            if (ctx.openlist.find(targetNavNode) != ctx.openlist.end())
                 continue;
-            if (ctx.closelist.find(targetNavNode->position) != ctx.closelist.end())
+            if (ctx.closelist.find(targetNavNode) != ctx.closelist.end())
                 continue;
             auto p = new node;
             ctx.nodes.push_back(p);
@@ -89,7 +89,7 @@ inline void step(context& ctx) {
             p->h = heuristic(targetNavNode->position, ctx.target);
             p->f = p->g + p->h;
 
-            ctx.openlist[targetNavNode->position] = p;
+            ctx.openlist[targetNavNode] = p;
             ns.push_back(p);
         }
     }
@@ -114,7 +114,7 @@ inline void step(context& ctx) {
                 }
             }
             ctx.processing = min;
-            ctx.openlist.erase(min->position);
+            ctx.openlist.erase(min->navNode);
         }
     } else {
         double minf = -1;
@@ -137,7 +137,7 @@ inline void step(context& ctx) {
             }
         }
         ctx.processing = min;
-        ctx.openlist.erase(min->position);
+        ctx.openlist.erase(min->navNode);
     }
 }
 inline int heuristic(const ivec2& p1, const ivec2& p2) {
@@ -145,4 +145,4 @@ inline int heuristic(const ivec2& p1, const ivec2& p2) {
     int y = p1.y - p2.y;
     return sqrt(x * x + y * y);
 }
-}  // namespace sdpf::pathfinding
+}  // namespace sdpf::astar
