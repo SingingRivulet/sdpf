@@ -5,12 +5,15 @@
 //点云处理
 namespace sdpf::pointcloud {
 
-vec2 getPointDis(kdtree::tree& tree, const vec2& pos) {
+void getPointDis(kdtree::tree& tree, const vec2& pos, vec2& dis, vec2& target) {
     auto res = tree.searchKdTree(std::vector<double>({pos.x, pos.y}));
     if (res) {
-        return vec2(res->val.at(0), res->val.at(1));
+        //printf("search:(%lf,%lf)=>(%lf,%lf)\n", pos.x, pos.y, res->val.at(0), res->val.at(1));
+        target = vec2(res->val.at(0), res->val.at(1));
+        dis = target - pos;
     } else {
-        return vec2(0, 0);
+        target = vec2(0, 0);
+        dis = vec2(0, 0);
     }
 }
 

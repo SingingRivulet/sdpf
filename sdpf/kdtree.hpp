@@ -111,6 +111,7 @@ class tree {
         printKdTreeNode(r->leftChild);
         std::cout << r->val << "\t";
         printKdTreeNode(r->rightChild);
+        std::cout << std::endl;
     }
 
     // 查找kd树

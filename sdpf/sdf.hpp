@@ -16,8 +16,6 @@ struct sdf : field<double> {  //运行阶段为只读数据结构
     inline sdf(int w, int h)
         : field(w, h) {}
     double* data = nullptr;
-    int width = 0;
-    int height = 0;
     double scale = 1.0;  //缩放（sdf有缩放不失真的特性）
 
     constexpr double operator()(double x, double y) {  //查找（自带插值）
@@ -112,27 +110,6 @@ struct sdf : field<double> {  //运行阶段为只读数据结构
             res /= len;
             return res;
         }
-    }
-    //判断峰顶
-    inline bool isTop(const ivec2& p) {
-        if (p.x <= 0 || p.y <= 0 || p.x >= width - 1 || p.y >= height - 1) {
-            //地图边缘不能检测
-            return false;
-        }
-        auto& center_v = at(p.x, p.y);
-        int count = 0;
-        for (int i = -1; i <= 1; ++i) {
-            for (int j = -1; j <= 1; ++j) {
-                if (i != 0 && j != 0) {
-                    int x = i + p.x;
-                    int y = j + p.y;
-                    if (at(x, y) <= center_v) {
-                        ++count;
-                    }
-                }
-            }
-        }
-        return count >= 6;
     }
     //判断山脊
     //原理：最大圆盘算法
