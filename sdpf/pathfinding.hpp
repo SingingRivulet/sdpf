@@ -21,11 +21,11 @@ inline void buildNodePath(nodePath& ctx,           //路线
                           navmesh::node* target,   //终点
                           int it_count = 512       //迭代次数
 ) {
-    astar::context atx;
-    astar::start(atx, begin, target, it_count);
+    astar_node::context atx;
+    astar_node::start(atx, begin, target, it_count);
     ctx.nodes.clear();
     ctx.length = -1;
-    astar::buildRoad(atx, [&](navmesh::node* n) {
+    astar_node::buildRoad(atx, [&](navmesh::node* n) {
         ctx.nodes.push_back(n);
     });
     std::reverse(ctx.nodes.begin(), ctx.nodes.end());

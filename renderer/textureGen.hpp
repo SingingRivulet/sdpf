@@ -83,14 +83,25 @@ inline void drawNodes(navmesh::navmesh& map, const ImVec2& p0) {
     }
 }
 
-inline void drawWays(navmesh::navmesh& map, const ImVec2& p0) {
+template <typename T>
+inline void drawPath(const T& path, const ImVec2& p0, ImU32 col) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 last;
+    bool first = true;
+    for (auto& point : path) {
+        ImVec2 now(point.x * 5 + p0.x + 2, point.y * 5 + p0.y + 2);
+        if (!first) {
+            draw_list->AddLine(last, now, col, 4.0);
+        }
+        first = false;
+        last = now;
+    }
+}
+
+inline void drawWays(navmesh::navmesh& map, const ImVec2& p0) {
     const ImU32 col = ImColor(ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
     for (auto& way_it : map.ways) {
-        for (auto& point : way_it.second->maxPath) {
-            draw_list->AddRectFilled(ImVec2(point.x + p0.x, point.y + p0.y),
-                                     ImVec2(point.x + p0.x + 5, point.y + p0.y + 5), col);
-        }
+        drawPath(way_it.second->maxPath, p0, col);
     }
 }
 

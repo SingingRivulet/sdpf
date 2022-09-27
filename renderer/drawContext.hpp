@@ -12,6 +12,8 @@ struct context {
     bool showNodes = true;
     bool showWays = true;
     std::vector<std::vector<double>> points{};
+    std::vector<ivec2> way_begin{};
+    std::vector<ivec2> way_target{};
     ~context() {
         if (mesh) {
             delete mesh;
@@ -21,11 +23,24 @@ struct context {
         }
     }
     enum viewMode_e {
-        NONE,
-        ADD_POINT
-    } viewMode = ADD_POINT;
+        VIEW = 0,
+        ADD_POINT = 1,
+        SET_BEGIN = 2,
+        SET_TARGET = 3
+    };
+    int viewMode = VIEW;
     inline void addPoint(double x, double y) {
         points.push_back(std::vector<double>({x / 5., y / 5.}));
+    }
+    inline void setBegin(double x, double y) {
+        ivec2 begin(x / 5., y / 5.);
+        ivec2 target;
+        navmesh::toRoad(*mesh, begin, way_begin, target);
+    }
+    inline void setTarget(double x, double y) {
+        ivec2 begin(x / 5., y / 5.);
+        ivec2 target;
+        navmesh::toRoad(*mesh, begin, way_target, target);
     }
     inline void updateMesh() {
         if (mesh) {
@@ -48,9 +63,8 @@ struct context {
         //for (auto& it : starts) {
         //    printf("tops:(%d,%d)\n", it.x, it.y);
         //}
-        navmesh::buildNavFlowField(*mesh, starts, minPathWith);
         navmesh::buildNodeBlock(*mesh, starts);
-        navmesh::buildConnect(*mesh);
+        navmesh::buildNavFlowField(*mesh, minPathWith);
     }
     inline void render() {
         window_map();
@@ -77,6 +91,8 @@ struct context {
                 }
                 if (showWays) {
                     drawWays(*mesh, p0);
+                    drawPath(way_begin, p0, ImColor(ImVec4(1.0f, 0.0f, 0.0f, 1.0f)));
+                    drawPath(way_target, p0, ImColor(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)));
                 }
             }
             drawPoints(points, ImColor(ImVec4(1.0f, 1.0f, 0.0f, 1.0f)), p0);
@@ -87,6 +103,16 @@ struct context {
                     if (viewMode == ADD_POINT) {
                         if (ImGui::IsMouseClicked(0)) {
                             addPoint(wpos.x, wpos.y);
+                        }
+                    }
+                    if (mesh && wpos.x < mesh->width * 5 && wpos.y < mesh->height * 5) {
+                        if (ImGui::IsMouseClicked(0)) {
+                            if (viewMode == SET_BEGIN) {
+                                setBegin(wpos.x, wpos.y);
+                            }
+                            if (viewMode == SET_TARGET) {
+                                setTarget(wpos.x, wpos.y);
+                            }
                         }
                     }
                 }
@@ -107,6 +133,13 @@ struct context {
             if (ImGui::Button("清空点云")) {
                 points.clear();
             }
+
+            int v = viewMode;
+            ImGui::RadioButton("浏览模式", &v, VIEW);
+            ImGui::RadioButton("设置点云", &v, ADD_POINT);
+            ImGui::RadioButton("设置起点", &v, SET_BEGIN);
+            ImGui::RadioButton("设置终点", &v, SET_TARGET);
+            viewMode = v;
         }
         ImGui::End();
     }

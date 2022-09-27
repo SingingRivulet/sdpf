@@ -149,6 +149,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o
  ../dep/imgui/backends/imgui_impl_sdlrenderer.h
  ../dep/imgui/imconfig.h
  ../dep/imgui/imgui.h
+ ../sdpf/astar_array.hpp
  ../sdpf/field.hpp
  ../sdpf/kdtree.hpp
  ../sdpf/navmesh.hpp

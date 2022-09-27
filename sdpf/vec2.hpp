@@ -99,20 +99,20 @@ class vector2d {
     inline vector2d<T> operator/(const T& p) const {
         return vector2d<T>(x / p, y / p);
     }
-    inline T norm() const {
+    inline auto norm() const {
         return sqrt((x * x) + (y * y));
     }
-    inline T invnorm() const {
+    inline auto invnorm() const {
         return 1 / sqrt((x * x) + (y * y));
     }
-    inline T length2(const vector2d<T>& p) const {
+    inline auto length2(const vector2d<T>& p) const {
         auto t = p - (*this);
         return ((t.x * t.x) + (t.y * t.y));
     }
-    inline T length(const vector2d<T>& p) const {
+    inline auto length(const vector2d<T>& p) const {
         return sqrt(length2(p));
     }
-    inline T dot(const vector2d<T>& p) const {
+    inline auto dot(const vector2d<T>& p) const {
         return (
             (x * p.x) +
             (y * p.y));

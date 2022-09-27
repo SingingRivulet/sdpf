@@ -32,6 +32,16 @@ assert.h
 imgui_user.h
 ../dep/imgui/imgui_user.h
 
+../sdpf/astar_array.hpp
+functional
+-
+map
+-
+vector
+-
+vec2.hpp
+../sdpf/vec2.hpp
+
 ../sdpf/field.hpp
 math.h
 -
@@ -51,6 +61,8 @@ vector
 -
 
 ../sdpf/navmesh.hpp
+list
+-
 map
 -
 memory
@@ -61,6 +73,8 @@ vec2.hpp
 -
 vector
 -
+astar_array.hpp
+../sdpf/astar_array.hpp
 pointcloud.hpp
 ../sdpf/pointcloud.hpp
 sdf.hpp

@@ -1,21 +1,20 @@
 #pragma once
 #include <functional>
-#include "navmesh.hpp"
-//寻路
-namespace sdpf {
-namespace astar_node {
+#include <map>
+#include <vector>
+#include "vec2.hpp"
+namespace sdpf::astar_array {
 
 struct node {  //寻路节点
     ivec2 position;
-    double g = 0;            //起始点到当前点实际代价
-    double h = 0;            //当前节点到目标节点最佳路径的估计代价
-    double f = 0;            //估计值
-    navmesh::node* navNode;  //导航节点
-    node* parent;            //父节点
+    double g = 0;  //起始点到当前点实际代价
+    double h = 0;  //当前节点到目标节点最佳路径的估计代价
+    double f = 0;  //估计值
+    node* parent;  //父节点
 };
 
 struct context {  //寻路context
-    std::map<navmesh::node*, node*> openlist{}, closelist{};
+    std::map<ivec2, node*> openlist{}, closelist{};
     node* processing = nullptr;
     node* result = nullptr;
     ivec2 target;
@@ -30,33 +29,38 @@ struct context {  //寻路context
     }
 };
 
-inline void start(context& ctx, navmesh::node* begin, navmesh::node* target, int it_count = 512) {
+template <class callback_c>
+inline void start(context& ctx,
+                  const ivec2& begin,
+                  const ivec2& target,
+                  const callback_c& callback,
+                  int it_count = 512) {
     auto st = new node;
     st->f = 0;
     st->g = 0;
     st->h = 0;
     st->parent = NULL;
-    st->position = begin->position;
-    st->navNode = begin;
+    st->position = begin;
     ctx.nodes.push_back(st);
     ctx.processing = st;
     ctx.result = NULL;
     ctx.failed = false;
-    ctx.target = target->position;
+    ctx.target = target;
 
     int num = 0;
     while (ctx.processing) {
-        step(ctx);
+        step(ctx, callback);
         ++num;
         if (num > it_count)
             break;
     }
 }
-inline void buildRoad(context& ctx, std::function<void(navmesh::node*)> callback) {
+template <class callback_c>
+inline void buildRoad(context& ctx, const callback_c& callback) {
     if (ctx.result) {
         auto p = ctx.result;
         while (p) {
-            callback(p->navNode);
+            callback(p->position);
             p = p->parent;
         }
     }
@@ -66,39 +70,31 @@ inline int heuristic(const ivec2& p1, const ivec2& p2) {
     int y = p1.y - p2.y;
     return sqrt(x * x + y * y);
 }
-inline void step(context& ctx) {
+template <class callback_c>
+inline void step(context& ctx, const callback_c& callback) {
     if (ctx.processing == NULL)
         return;
-    ctx.closelist[ctx.processing->navNode] = ctx.processing;
+    ctx.closelist[ctx.processing->position] = ctx.processing;
 
     std::vector<node*> ns;
-    for (auto it : ctx.processing->navNode->ways) {
-        navmesh::node* targetNavNode;
-        if (it->minWidth > ctx.minPathWidth) {  //可以通过
-            if (it->p1 == ctx.processing->navNode) {
-                targetNavNode = it->p2;
-            } else {
-                targetNavNode = it->p1;
-            }
-            if (ctx.openlist.find(targetNavNode) != ctx.openlist.end())
-                continue;
-            if (ctx.closelist.find(targetNavNode) != ctx.closelist.end())
-                continue;
-            auto p = new node;
-            ctx.nodes.push_back(p);
-            p->parent = ctx.processing;
-            p->position = targetNavNode->position;
-            p->navNode = targetNavNode;
+    callback(ctx.processing->position, [&](const ivec2& pos) {
+        if (ctx.openlist.find(pos) != ctx.openlist.end())
+            return;
+        if (ctx.closelist.find(pos) != ctx.closelist.end())
+            return;
+        auto p = new node;
+        ctx.nodes.push_back(p);
+        p->parent = ctx.processing;
+        p->position = pos;
 
-            //启发
-            p->g = ctx.processing->g + it->length;
-            p->h = heuristic(targetNavNode->position, ctx.target);
-            p->f = p->g + p->h;
+        //启发
+        p->g = ctx.processing->g + (pos - ctx.processing->position).norm();
+        p->h = heuristic(pos, ctx.target);
+        p->f = p->g + p->h;
 
-            ctx.openlist[targetNavNode] = p;
-            ns.push_back(p);
-        }
-    }
+        ctx.openlist[pos] = p;
+        ns.push_back(p);
+    });
     if (ns.empty()) {
         if (ctx.openlist.empty()) {
             ctx.failed = true;  //搜索失败
@@ -120,7 +116,7 @@ inline void step(context& ctx) {
                 }
             }
             ctx.processing = min;
-            ctx.openlist.erase(min->navNode);
+            ctx.openlist.erase(min->position);
         }
     } else {
         double minf = -1;
@@ -143,9 +139,7 @@ inline void step(context& ctx) {
             }
         }
         ctx.processing = min;
-        ctx.openlist.erase(min->navNode);
+        ctx.openlist.erase(min->position);
     }
 }
-}  // namespace astar_node
-
-}  // namespace sdpf
+}  // namespace sdpf::astar_array
