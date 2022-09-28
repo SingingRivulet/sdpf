@@ -33,8 +33,6 @@ imgui_user.h
 ../dep/imgui/imgui_user.h
 
 ../sdpf/astar_array.hpp
-functional
--
 map
 -
 vector

@@ -311,7 +311,7 @@ inline void buildPath(navmesh& mesh,
                         if (x >= 0 && y >= 0 &&
                             x < mesh.width && y < mesh.height) {
                             auto id = mesh.idMap.at(x, y);
-                            if (id == -2 || id > 0) {
+                            if (id == -2 || id == begin_id || id == target_id) {
                                 callback(ivec2(x, y));
                             }
                         }
