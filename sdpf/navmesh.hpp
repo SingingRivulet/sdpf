@@ -12,10 +12,14 @@
 namespace sdpf::navmesh {
 
 struct way;
-struct node {               //节点
-    ivec2 position;         //位置
-    int32_t id;             //节点id
-    std::set<way*> ways{};  //相连
+struct node {                   //节点
+    ivec2 position;             //位置
+    int32_t id;                 //节点id
+    double flowValue;           //流场值
+    int32_t flowFieldFlag = 0;  //流场寻路标识
+    way* flowDir = nullptr;     //流场方向
+    std::set<way*> ways{};      //相连
+    std::set<way*> tmpways{};   //临时路线
 };
 struct way {                            //连线
     node *p1 = nullptr, *p2 = nullptr;  //两个端点(id较小的排前面)
@@ -48,6 +52,42 @@ struct navmesh {
         searchMap.setAll(0);
     }
 };
+
+inline void buildMeshFlowField(navmesh& mesh, node* target) {
+    ++mesh.searchMap_id;
+    target->flowValue = 0;
+    target->flowDir = nullptr;
+    std::queue<node*> que{};
+
+    que.push(target);
+    std::set<int> connect;
+    while (!que.empty()) {
+        const auto& node = que.front();
+        node->flowFieldFlag = mesh.searchMap_id;
+
+#define processNode                                              \
+    sdpf::navmesh::node* targetNavNode;                          \
+    if (it->p1 == node) {                                        \
+        targetNavNode = it->p2;                                  \
+    } else {                                                     \
+        targetNavNode = it->p1;                                  \
+    }                                                            \
+    if (targetNavNode->flowFieldFlag != mesh.searchMap_id) {     \
+        targetNavNode->flowValue = node->flowValue + it->length; \
+        targetNavNode->flowDir = it;                             \
+        que.push(targetNavNode);                                 \
+    }
+        for (auto it : node->ways) {
+            processNode;
+        }
+        for (auto it : node->tmpways) {
+            processNode;
+        }
+#undef processNode
+
+        que.pop();
+    }
+}
 
 inline void buildSdfMap(navmesh& mesh, kdtree::tree& tree) {
 #pragma omp parallel for

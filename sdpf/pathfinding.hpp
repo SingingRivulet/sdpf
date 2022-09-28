@@ -140,6 +140,8 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
     dTarget_way2.minWidth = wayTargetMinWidth;
     dTarget_way2.p1 = &dTarget_node_tmp;
 
+    std::vector<navmesh::node*> nodeClearList;
+
     //构造临时路线
     int dStart_id1 = std::get<0>(dStart);
     if (dStart_id1 > 0) {
@@ -147,7 +149,8 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         dStart_way1.p2 = dStart_node1;
         buildTmpWay(mesh, dStart_way1, wayStart, dStart_id1);
         dStart_node_tmp.ways.insert(&dStart_way1);
-        //printf("minWidth=%lf\n", dStart_way1.minWidth);
+        dStart_node1->tmpways.insert(&dStart_way1);
+        nodeClearList.push_back(dStart_node1);
     }
 
     int dStart_id2 = std::get<1>(dStart);
@@ -156,7 +159,8 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         dStart_way2.p2 = dStart_node2;
         buildTmpWay(mesh, dStart_way2, wayStart, dStart_id2);
         dStart_node_tmp.ways.insert(&dStart_way2);
-        //printf("minWidth=%lf\n", dStart_way2.minWidth);
+        dStart_node2->tmpways.insert(&dStart_way2);
+        nodeClearList.push_back(dStart_node2);
     }
 
     int dEnd_id1 = std::get<0>(dEnd);
@@ -165,6 +169,8 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         dTarget_way1.p2 = dEnd_node1;
         buildTmpWay(mesh, dTarget_way1, wayEnd, dEnd_id1);
         dTarget_node_tmp.ways.insert(&dTarget_way1);
+        dEnd_node1->tmpways.insert(&dTarget_way1);
+        nodeClearList.push_back(dEnd_node1);
     }
 
     int dEnd_id2 = std::get<1>(dEnd);
@@ -173,10 +179,43 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         dTarget_way2.p2 = dEnd_node2;
         buildTmpWay(mesh, dTarget_way2, wayEnd, dEnd_id2);
         dTarget_node_tmp.ways.insert(&dTarget_way2);
+        dEnd_node2->tmpways.insert(&dTarget_way2);
+        nodeClearList.push_back(dEnd_node2);
     }
 
     //构造路线
     path.clear();
+    //使用流场的寻路方式
+    //printf("buildMeshFlowField\n");
+    navmesh::buildMeshFlowField(mesh, &dTarget_node_tmp);  //流场寻路只需要终点
+    navmesh::node* targetNavNode = &dStart_node_tmp;
+    navmesh::node* last = nullptr;
+    while (targetNavNode && targetNavNode->flowFieldFlag == mesh.searchMap_id) {
+        //printf("id=%d\n", targetNavNode->id);
+        auto w = targetNavNode->flowDir;
+        if (w) {
+            auto& nodepath = w->maxPath;
+            if (w->p1 == targetNavNode) {
+                targetNavNode = w->p2;
+                for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
+                    path.push_back(*itp);
+                }
+            } else {
+                targetNavNode = w->p1;
+                for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
+                    path.push_back(*itp);
+                }
+            }
+            last = targetNavNode;
+        } else {
+            break;
+        }
+    }
+    for (auto it : nodeClearList) {
+        it->tmpways.clear();
+    }
+    /*
+    //使用a*的寻路方式
     astar_node::context atx;
     astar_node::start(
         atx, &dStart_node_tmp, &dTarget_node_tmp, [&](const auto& node, auto callback) {
@@ -258,6 +297,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         }
         lastNode = n->id;
     });
+    */
     std::reverse(path.begin(), path.end());
 }
 }  // namespace sdpf::pathfinding
