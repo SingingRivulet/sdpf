@@ -148,10 +148,12 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/backends/imgui_impl_sdl.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/backends/imgui_impl_sdlrenderer.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imconfig.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imgui.h
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar_array.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/field.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/kdtree.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/navmesh.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathfinding.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pointcloud.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/sdf.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/vec2.hpp

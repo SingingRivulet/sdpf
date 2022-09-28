@@ -6,33 +6,6 @@
 
 //寻路
 namespace sdpf::pathfinding {
-struct context {
-    vec2 start, target;
-    ivec2 pathStart, pathEnd;
-};
-struct nodePath {
-    std::vector<navmesh::node*> nodes;
-    double length;
-};
-
-inline void buildNodePath(nodePath& ctx,           //路线
-                          navmesh::navmesh& mesh,  //mesh
-                          navmesh::node* begin,    //起点
-                          navmesh::node* target,   //终点
-                          int it_count = 512       //迭代次数
-) {
-    astar_node::context atx;
-    astar_node::start(atx, begin, target, it_count);
-    ctx.nodes.clear();
-    ctx.length = -1;
-    astar_node::buildRoad(atx, [&](navmesh::node* n) {
-        ctx.nodes.push_back(n);
-    });
-    std::reverse(ctx.nodes.begin(), ctx.nodes.end());
-    if (atx.result) {
-        ctx.length = atx.result->h;
-    }
-}
 
 inline void buildTmpWay(navmesh::navmesh& mesh,
                         navmesh::way& way,
@@ -40,7 +13,6 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
                         int targetId) {
     bool rev = false;
     bool lengthRev = false;
-    way.reverse = false;
     auto targetNode = mesh.nodes.at(targetId - 1).get();
     auto targetBlock = mesh.pathDisMap.at(start.x, start.y);
     int a = std::get<0>(targetBlock);
@@ -57,53 +29,38 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
         std::swap(a, b);
         rev = !rev;
     }
+    //printf("buildTmpWay %d %d\n", a, b);
     auto pair = std::make_pair(a, b);
     auto it = mesh.ways.find(pair);
     if (it != mesh.ways.end()) {
-        if (it->second->reverse) {
-            rev = !rev;
-        }
+        //printf("set path\n");
         auto& path = it->second->maxPath;
         auto len = path.size();
         way.minWidth = it->second->minWidth;
-        way.maxPath.clear();
+        ivec2 last;
+        bool first = true;
         if (rev) {
             for (int i = startIndex; i >= 0; --i) {
                 way.maxPath.push_back(path[i]);
+                way.minWidth = std::min(way.minWidth,
+                                        mesh.sdfMap.at(path[i].x, path[i].y));
+                if (!first) {
+                    way.length += path[i].length(last);
+                }
+                last = path[i];
+                first = false;
             }
         } else {
             for (int i = startIndex; i < len; ++i) {
                 way.maxPath.push_back(path[i]);
+                way.minWidth = std::min(way.minWidth,
+                                        mesh.sdfMap.at(path[i].x, path[i].y));
+                if (!first) {
+                    way.length += path[i].length(last);
+                }
+                last = path[i];
+                first = false;
             }
-        }
-        if (lengthRev) {
-            way.minWidth = std::get<2>(targetBlock);
-        } else {
-            way.minWidth = it->second->minWidth - std::get<2>(targetBlock);
-        }
-    }
-}
-
-inline void buildPathPos(navmesh::navmesh& mesh,
-                         navmesh::node* a,
-                         navmesh::node* b,
-                         std::vector<ivec2>& path) {
-    int32_t id1 = a->id;
-    int32_t id2 = b->id;
-    bool rev = false;
-    if (id1 > id2) {
-        std::swap(id1, id2);
-        rev = true;
-    }
-    auto pair = std::make_pair(id1, id2);
-    auto it = mesh.ways.find(pair);
-    if (it != mesh.ways.end()) {
-        if (it->second->reverse) {
-            rev = !rev;
-        }
-        path = it->second->maxPath;
-        if (rev) {
-            std::reverse(path.begin(), path.end());
         }
     }
 }
@@ -112,8 +69,8 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
                           vec2 begin,                //起点
                           vec2 target,               //终点
                           std::vector<ivec2>& path,  //最终路线
-                          int it_count = 512         //迭代次数
-) {
+                          int it_count = 512,        //迭代次数
+                          double minPathWidth = 8) {
     std::vector<ivec2> pathWayStart, pathWayTarget;
     ivec2 wayStart, wayEnd;
     //利用流场求解道路上的起止点
@@ -124,63 +81,183 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         return;
     }
 
-    auto& dStart = mesh.pathDisMap.at(wayStart.x, wayStart.y);
-    //构造临时节点
-    navmesh::node dStart_node_tmp;
-    navmesh::way dStart_way1, dStart_way2;
-    dStart_node_tmp.ways.insert(&dStart_way1);
-    dStart_node_tmp.ways.insert(&dStart_way2);
-    dStart_way1.p1 = &dStart_node_tmp;
-    dStart_way2.p1 = &dStart_node_tmp;
-    //构造临时路线
-    int dStart_id1 = std::get<0>(dStart);
-    int dStart_id2 = std::get<1>(dStart);
-    auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
-    auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();
-    dStart_way1.p2 = dStart_node1;
-    dStart_way2.p2 = dStart_node2;
-    buildTmpWay(mesh, dStart_way1, wayEnd, dStart_id1);
-    buildTmpWay(mesh, dStart_way2, wayEnd, dStart_id2);
+    //计算宽度和路线长度
+    double wayStartLen = 0;
+    double wayStartMinWidth = INFINITY;
+    {
+        ivec2 last;
+        bool first = true;
+        for (auto& it : pathWayStart) {
+            if (!first) {
+                wayStartMinWidth = std::min(wayStartMinWidth, mesh.sdfMap.at(it.x, it.y));
+            }
+            wayStartLen += it.length(last);
+            first = false;
+            last = it;
+        }
+    }
+    double wayTargetLen = 0;
+    double wayTargetMinWidth = INFINITY;
+    {
+        ivec2 last;
+        bool first = true;
+        for (auto& it : pathWayTarget) {
+            if (!first) {
+                wayTargetMinWidth = std::min(wayTargetMinWidth, mesh.sdfMap.at(it.x, it.y));
+            }
+            wayTargetLen += it.length(last);
+            first = false;
+            last = it;
+        }
+    }
 
+    //printf("wayStart=(%d,%d) wayEnd=(%d,%d)\n", wayStart.x, wayStart.y, wayEnd.x, wayEnd.y);
+
+    auto& dStart = mesh.pathDisMap.at(wayStart.x, wayStart.y);
     auto& dEnd = mesh.pathDisMap.at(wayEnd.x, wayEnd.y);
     //构造临时节点
+    navmesh::node dStart_node_tmp;
+    dStart_node_tmp.id = -1;
+    navmesh::way dStart_way1, dStart_way2;
+    dStart_way1.maxPath = pathWayStart;
+    dStart_way1.length = wayStartLen;
+    dStart_way1.minWidth = wayStartMinWidth;
+    dStart_way1.p1 = &dStart_node_tmp;
+    dStart_way2.maxPath = pathWayStart;
+    dStart_way2.length = wayStartLen;
+    dStart_way2.minWidth = wayStartMinWidth;
+    dStart_way2.p1 = &dStart_node_tmp;
+
     navmesh::node dTarget_node_tmp;
+    dTarget_node_tmp.id = -2;
     navmesh::way dTarget_way1, dTarget_way2;
-    dTarget_node_tmp.ways.insert(&dTarget_way1);
-    dTarget_node_tmp.ways.insert(&dTarget_way2);
+    dTarget_way1.maxPath = pathWayTarget;
+    dTarget_way1.length = wayTargetLen;
+    dTarget_way1.minWidth = wayTargetMinWidth;
     dTarget_way1.p1 = &dTarget_node_tmp;
+    dTarget_way2.maxPath = pathWayTarget;
+    dTarget_way2.length = wayTargetLen;
+    dTarget_way2.minWidth = wayTargetMinWidth;
     dTarget_way2.p1 = &dTarget_node_tmp;
+
     //构造临时路线
+    int dStart_id1 = std::get<0>(dStart);
+    if (dStart_id1 > 0) {
+        auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
+        dStart_way1.p2 = dStart_node1;
+        buildTmpWay(mesh, dStart_way1, wayStart, dStart_id1);
+        dStart_node_tmp.ways.insert(&dStart_way1);
+        //printf("minWidth=%lf\n", dStart_way1.minWidth);
+    }
+
+    int dStart_id2 = std::get<1>(dStart);
+    if (dStart_id2 > 0) {
+        auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();
+        dStart_way2.p2 = dStart_node2;
+        buildTmpWay(mesh, dStart_way2, wayStart, dStart_id2);
+        dStart_node_tmp.ways.insert(&dStart_way2);
+        //printf("minWidth=%lf\n", dStart_way2.minWidth);
+    }
+
     int dEnd_id1 = std::get<0>(dEnd);
+    if (dEnd_id1 > 0) {
+        auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
+        dTarget_way1.p2 = dEnd_node1;
+        buildTmpWay(mesh, dTarget_way1, wayEnd, dEnd_id1);
+        dTarget_node_tmp.ways.insert(&dTarget_way1);
+    }
+
     int dEnd_id2 = std::get<1>(dEnd);
-    auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
-    auto dEnd_node2 = mesh.nodes.at(dEnd_id2 - 1).get();
-    dTarget_way1.p2 = dStart_node1;
-    dTarget_way2.p2 = dStart_node2;
-    buildTmpWay(mesh, dTarget_way1, wayEnd, dEnd_id1);
-    buildTmpWay(mesh, dTarget_way2, wayEnd, dEnd_id2);
+    if (dEnd_id2 > 0) {
+        auto dEnd_node2 = mesh.nodes.at(dEnd_id2 - 1).get();
+        dTarget_way2.p2 = dEnd_node2;
+        buildTmpWay(mesh, dTarget_way2, wayEnd, dEnd_id2);
+        dTarget_node_tmp.ways.insert(&dTarget_way2);
+    }
 
     //构造路线
-    nodePath nodePath;
-    buildNodePath(nodePath, mesh, &dStart_node_tmp, &dTarget_node_tmp, it_count);
-
     path.clear();
-    for (auto& it : pathWayStart) {
-        path.push_back(it);
-    }
-    navmesh::node* last = nullptr;
-    for (auto& it : nodePath.nodes) {
-        if (last != nullptr) {
-            std::vector<ivec2> tmp;
-            buildPathPos(mesh, last, it, tmp);
-            for (auto& it : tmp) {
-                path.push_back(it);
+    astar_node::context atx;
+    astar_node::start(
+        atx, &dStart_node_tmp, &dTarget_node_tmp, [&](const auto& node, auto callback) {
+            //printf("find path id:%d\n", node->id);
+            for (auto it : node->ways) {
+                //printf("way:%d %d minWidth=%lf\n", it->p1->id, it->p2->id, it->minWidth);
+                navmesh::node* targetNavNode;
+                if (it->minWidth > minPathWidth) {  //可以通过
+                    if (it->p1 == node) {
+                        targetNavNode = it->p2;
+                    } else {
+                        targetNavNode = it->p1;
+                    }
+                    //printf("con:%d\n", targetNavNode->id);
+                    callback(targetNavNode, it->length);
+                }
+            }
+            if (node->id == dEnd_id1) {
+                //printf("con:end1\n");
+                callback(&dTarget_node_tmp, dTarget_way1.length);
+            }
+            if (node->id == dEnd_id2) {
+                //printf("con:end2\n");
+                callback(&dTarget_node_tmp, dTarget_way2.length);
+            }
+        },
+        it_count);
+    int lastNode = 0;
+    astar_node::buildRoad(atx, [&](navmesh::node* n) {
+        //printf("id:%d\n", n->id);
+        bool rev = 0;
+        if (lastNode == -2) {
+            if (dTarget_way1.p2 == n) {
+                auto& nodepath = dTarget_way1.maxPath;
+                for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
+                    path.push_back(*itp);
+                }
+            } else if (dTarget_way2.p2 == n) {
+                auto& nodepath = dTarget_way2.maxPath;
+                for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
+                    path.push_back(*itp);
+                }
+            }
+        } else if (lastNode > 0) {
+            if (n->id == -1) {
+                if (dStart_way1.p2->id == lastNode) {
+                    auto& nodepath = dStart_way1.maxPath;
+                    for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
+                        path.push_back(*itp);
+                    }
+                } else if (dStart_way2.p2->id == lastNode) {
+                    auto& nodepath = dStart_way2.maxPath;
+                    for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
+                        path.push_back(*itp);
+                    }
+                }
+            } else if (n->id > 0) {
+                int a = lastNode;
+                int b = n->id;
+                if (a > b) {
+                    std::swap(a, b);
+                    rev = !rev;
+                }
+                auto pair = std::make_pair(a, b);
+                auto it = mesh.ways.find(pair);
+                if (it != mesh.ways.end()) {
+                    auto& nodepath = it->second->maxPath;
+                    if (!rev) {
+                        for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
+                            path.push_back(*itp);
+                        }
+                    } else {
+                        for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
+                            path.push_back(*itp);
+                        }
+                    }
+                }
             }
         }
-        last = it;
-    }
-    for (auto it = pathWayTarget.rbegin(); it != pathWayTarget.rend(); ++it) {
-        path.push_back(*it);
-    }
+        lastNode = n->id;
+    });
+    std::reverse(path.begin(), path.end());
 }
 }  // namespace sdpf::pathfinding

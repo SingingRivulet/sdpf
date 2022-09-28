@@ -1,4 +1,5 @@
 #pragma once
+#include "pathfinding.hpp"
 #include "textureGen.hpp"
 namespace sdpf::renderer {
 
@@ -12,8 +13,11 @@ struct context {
     bool showNodes = true;
     bool showWays = true;
     std::vector<std::vector<double>> points{};
+    ivec2 point_begin = ivec2(-1, -1);
+    ivec2 point_target = ivec2(-1, -1);
     std::vector<ivec2> way_begin{};
     std::vector<ivec2> way_target{};
+    std::vector<ivec2> way_pathfinding{};
     ~context() {
         if (mesh) {
             delete mesh;
@@ -33,14 +37,28 @@ struct context {
         points.push_back(std::vector<double>({x / 5., y / 5.}));
     }
     inline void setBegin(double x, double y) {
-        ivec2 begin(x / 5., y / 5.);
+        point_begin = ivec2(x / 5., y / 5.);
         ivec2 target;
-        navmesh::toRoad(*mesh, begin, way_begin, target);
+        navmesh::toRoad(*mesh, point_begin, way_begin, target);
+        if (point_begin.x >= 0 && point_begin.x < mesh->width &&
+            point_begin.y >= 0 && point_begin.y < mesh->height) {
+            pathfinding::buildNodePath(
+                *mesh,
+                vec2(point_begin.x, point_begin.y),
+                vec2(point_target.x, point_target.y), way_pathfinding);
+        }
     }
     inline void setTarget(double x, double y) {
-        ivec2 begin(x / 5., y / 5.);
+        point_target = ivec2(x / 5., y / 5.);
         ivec2 target;
-        navmesh::toRoad(*mesh, begin, way_target, target);
+        navmesh::toRoad(*mesh, point_target, way_target, target);
+        if (point_begin.x >= 0 && point_begin.x < mesh->width &&
+            point_begin.y >= 0 && point_begin.y < mesh->height) {
+            pathfinding::buildNodePath(
+                *mesh,
+                vec2(point_begin.x, point_begin.y),
+                vec2(point_target.x, point_target.y), way_pathfinding);
+        }
     }
     inline void updateMesh() {
         if (mesh) {
@@ -93,6 +111,7 @@ struct context {
                     drawWays(*mesh, p0);
                     drawPath(way_begin, p0, ImColor(ImVec4(1.0f, 0.0f, 0.0f, 1.0f)));
                     drawPath(way_target, p0, ImColor(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)));
+                    drawPath(way_pathfinding, p0, ImColor(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)));
                 }
             }
             drawPoints(points, ImColor(ImVec4(1.0f, 1.0f, 0.0f, 1.0f)), p0);

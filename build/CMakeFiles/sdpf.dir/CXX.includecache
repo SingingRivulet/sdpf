@@ -32,6 +32,12 @@ assert.h
 imgui_user.h
 ../dep/imgui/imgui_user.h
 
+../sdpf/astar.hpp
+functional
+-
+navmesh.hpp
+../sdpf/navmesh.hpp
+
 ../sdpf/astar_array.hpp
 map
 -
@@ -78,6 +84,16 @@ pointcloud.hpp
 sdf.hpp
 ../sdpf/sdf.hpp
 
+../sdpf/pathfinding.hpp
+math.h
+-
+stdexcept
+-
+astar.hpp
+../sdpf/astar.hpp
+navmesh.hpp
+../sdpf/navmesh.hpp
+
 ../sdpf/pointcloud.hpp
 kdtree.hpp
 ../sdpf/kdtree.hpp
@@ -111,6 +127,8 @@ math.h
 -
 
 /home/ubuntu/project/sdfpathfinding/renderer/drawContext.hpp
+pathfinding.hpp
+/home/ubuntu/project/sdfpathfinding/renderer/pathfinding.hpp
 textureGen.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/textureGen.hpp
 

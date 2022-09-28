@@ -30,7 +30,12 @@ struct context {  //寻路context
     }
 };
 
-inline void start(context& ctx, navmesh::node* begin, navmesh::node* target, int it_count = 512) {
+template <class callback_c>
+inline void start(context& ctx,
+                  navmesh::node* begin,
+                  navmesh::node* target,
+                  const callback_c& callback,
+                  int it_count = 512) {
     auto st = new node;
     st->f = 0;
     st->g = 0;
@@ -46,12 +51,13 @@ inline void start(context& ctx, navmesh::node* begin, navmesh::node* target, int
 
     int num = 0;
     while (ctx.processing) {
-        step(ctx);
+        step(ctx, callback);
         ++num;
         if (num > it_count)
             break;
     }
 }
+
 inline void buildRoad(context& ctx, std::function<void(navmesh::node*)> callback) {
     if (ctx.result) {
         auto p = ctx.result;
@@ -66,39 +72,43 @@ inline int heuristic(const ivec2& p1, const ivec2& p2) {
     int y = p1.y - p2.y;
     return sqrt(x * x + y * y);
 }
-inline void step(context& ctx) {
+
+template <class callback_c>
+inline void step(context& ctx, const callback_c& callback) {
     if (ctx.processing == NULL)
         return;
     ctx.closelist[ctx.processing->navNode] = ctx.processing;
 
     std::vector<node*> ns;
-    for (auto it : ctx.processing->navNode->ways) {
-        navmesh::node* targetNavNode;
-        if (it->minWidth > ctx.minPathWidth) {  //可以通过
-            if (it->p1 == ctx.processing->navNode) {
-                targetNavNode = it->p2;
-            } else {
-                targetNavNode = it->p1;
-            }
-            if (ctx.openlist.find(targetNavNode) != ctx.openlist.end())
-                continue;
-            if (ctx.closelist.find(targetNavNode) != ctx.closelist.end())
-                continue;
-            auto p = new node;
-            ctx.nodes.push_back(p);
-            p->parent = ctx.processing;
-            p->position = targetNavNode->position;
-            p->navNode = targetNavNode;
+    //for (auto it : ctx.processing->navNode->ways) {
+    //navmesh::node* targetNavNode;
+    //if (it->minWidth > ctx.minPathWidth) {  //可以通过
+    callback(ctx.processing->navNode, [&](navmesh::node* targetNavNode, double length) {
+        //if (it->p1 == ctx.processing->navNode) {
+        //    targetNavNode = it->p2;
+        //} else {
+        //    targetNavNode = it->p1;
+        //}
+        if (ctx.openlist.find(targetNavNode) != ctx.openlist.end())
+            return;
+        if (ctx.closelist.find(targetNavNode) != ctx.closelist.end())
+            return;
+        auto p = new node;
+        ctx.nodes.push_back(p);
+        p->parent = ctx.processing;
+        p->position = targetNavNode->position;
+        p->navNode = targetNavNode;
 
-            //启发
-            p->g = ctx.processing->g + it->length;
-            p->h = heuristic(targetNavNode->position, ctx.target);
-            p->f = p->g + p->h;
+        //启发
+        p->g = ctx.processing->g + length;
+        p->h = heuristic(targetNavNode->position, ctx.target);
+        p->f = p->g + p->h;
 
-            ctx.openlist[targetNavNode] = p;
-            ns.push_back(p);
-        }
-    }
+        ctx.openlist[targetNavNode] = p;
+        ns.push_back(p);
+    });
+    //}
+    //}
     if (ns.empty()) {
         if (ctx.openlist.empty()) {
             ctx.failed = true;  //搜索失败
@@ -146,6 +156,7 @@ inline void step(context& ctx) {
         ctx.openlist.erase(min->navNode);
     }
 }
+
 }  // namespace astar_node
 
 }  // namespace sdpf

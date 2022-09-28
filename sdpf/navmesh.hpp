@@ -21,7 +21,6 @@ struct way {                            //连线
     node *p1 = nullptr, *p2 = nullptr;  //两个端点(id较小的排前面)
     std::vector<ivec2> maxPath{};       //值最大的路线（sdf极值线）
     double minWidth;                    //最小路宽，小于说明物体无法通过
-    bool reverse = false;               //路线翻转
     double length = 0;                  //路线长度
 };
 
@@ -373,11 +372,13 @@ inline void buildPath(navmesh& mesh,
             l->p2 = mesh.nodes.at(target_id - 1).get();
 
             l->minWidth = minWidth;
-            l->reverse = false;
             for (auto& point : path) {
                 auto& pos = std::get<0>(point);
                 l->maxPath.push_back(pos);
             }
+
+            mesh.nodes.at(begin_id - 1)->ways.insert(l.get());
+            mesh.nodes.at(target_id - 1)->ways.insert(l.get());
 
             mesh.ways[way_key] = std::move(l);
         }
