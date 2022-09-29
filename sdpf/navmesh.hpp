@@ -566,7 +566,8 @@ inline void buildNodeBlock(navmesh& mesh, const std::vector<ivec2>& points_block
             std::unique_ptr<node> n(new node);
             n->id = index;
             n->position.init(center.x, center.y);
-
+            mesh.pathDisMap.at(center.x, center.y) =
+                std::tuple<int32_t, int32_t, double, int>(n->id, 0, 0, 0);
             for (auto& point : block) {
                 auto x = point.x;
                 auto y = point.y;
@@ -608,15 +609,15 @@ inline void buildNavFlowField(navmesh& mesh, double minPathWith) {
         auto& p = it->position;
         processPoint;
     }
+#undef processPoint
     //广搜
     while (!que.empty()) {
         const auto& pos = que.front();
         auto& searchFlag = mesh.searchMap.at(pos.x, pos.y);  //搜索标识
         if (searchFlag != mesh.searchMap_id) {               //未遍历，开始处理
             if (pos.x >= 0 && pos.y >= 0 &&
-                pos.x < mesh.width && pos.y < mesh.height &&
-                mesh.sdfMap.at(pos.x, pos.y) > minPathWith) {  //宽度足够大，目标可达
-                searchFlag = mesh.searchMap_id;                //标记已经遍历过
+                pos.x < mesh.width && pos.y < mesh.height) {
+                searchFlag = mesh.searchMap_id;  //标记已经遍历过
 
                 ivec2 minConn_pos;
                 double minConn_w = -1;
@@ -630,8 +631,15 @@ inline void buildNavFlowField(navmesh& mesh, double minPathWith) {
                                 que.push(ivec2(x, y));
                                 if (mesh.searchMap.at(x, y) == mesh.searchMap_id) {
                                     auto& pathNavMapVal = mesh.pathNavMap.at(x, y);
-                                    auto w = std::get<1>(pathNavMapVal) +
-                                             vec2(x - pos.x, y - pos.y).norm();
+                                    auto wdelta = vec2(x - pos.x, y - pos.y).norm();
+                                    auto pathWidth = mesh.sdfMap.at(pos.x, pos.y);
+                                    if (pathWidth == 0) {
+                                        pathWidth = 0.000001;
+                                    }
+                                    if (pathWidth <= minPathWith) {
+                                        wdelta += 1000. / pathWidth;  //太窄，逃离
+                                    }
+                                    auto w = std::get<1>(pathNavMapVal) + wdelta;
 
                                     //printf("%d %d w=%lf\n", pos.x, pos.y, w);
                                     if (minConn_w < 0 || w < minConn_w) {

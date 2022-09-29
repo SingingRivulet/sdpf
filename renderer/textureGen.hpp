@@ -84,14 +84,14 @@ inline void drawNodes(navmesh::navmesh& map, const ImVec2& p0) {
 }
 
 template <typename T>
-inline void drawPath(const T& path, const ImVec2& p0, ImU32 col) {
+inline void drawPath(const T& path, const ImVec2& p0, ImU32 col, int w = 4.0) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     ImVec2 last;
     bool first = true;
     for (auto& point : path) {
         ImVec2 now(point.x * 5 + p0.x + 2, point.y * 5 + p0.y + 2);
         if (!first) {
-            draw_list->AddLine(last, now, col, 4.0);
+            draw_list->AddLine(last, now, col, w);
         }
         first = false;
         last = now;

@@ -39,13 +39,14 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
         way.minWidth = it->second->minWidth;
         ivec2 last;
         bool first = true;
+        double lenSum = 0;
         if (rev) {
             for (int i = startIndex; i >= 0; --i) {
                 way.maxPath.push_back(path[i]);
                 way.minWidth = std::min(way.minWidth,
                                         mesh.sdfMap.at(path[i].x, path[i].y));
                 if (!first) {
-                    way.length += path[i].length(last);
+                    lenSum += path[i].length(last);
                 }
                 last = path[i];
                 first = false;
@@ -56,12 +57,14 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
                 way.minWidth = std::min(way.minWidth,
                                         mesh.sdfMap.at(path[i].x, path[i].y));
                 if (!first) {
-                    way.length += path[i].length(last);
+                    lenSum += path[i].length(last);
                 }
                 last = path[i];
                 first = false;
             }
         }
+        //printf("lenSum=%lf\n", lenSum);
+        way.length += lenSum;
     }
 }
 
@@ -89,9 +92,9 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         bool first = true;
         for (auto& it : pathWayStart) {
             if (!first) {
-                wayStartMinWidth = std::min(wayStartMinWidth, mesh.sdfMap.at(it.x, it.y));
+                wayStartLen += it.length(last);
             }
-            wayStartLen += it.length(last);
+            wayStartMinWidth = std::min(wayStartMinWidth, mesh.sdfMap.at(it.x, it.y));
             first = false;
             last = it;
         }
@@ -103,13 +106,14 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         bool first = true;
         for (auto& it : pathWayTarget) {
             if (!first) {
-                wayTargetMinWidth = std::min(wayTargetMinWidth, mesh.sdfMap.at(it.x, it.y));
+                wayTargetLen += it.length(last);
             }
-            wayTargetLen += it.length(last);
+            wayTargetMinWidth = std::min(wayTargetMinWidth, mesh.sdfMap.at(it.x, it.y));
             first = false;
             last = it;
         }
     }
+    //printf("wayStartLen=%lf wayTargetLen=%lf\n", wayStartLen, wayTargetLen);
 
     //printf("wayStart=(%d,%d) wayEnd=(%d,%d)\n", wayStart.x, wayStart.y, wayEnd.x, wayEnd.y);
 
@@ -146,16 +150,28 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
 
     //构造临时路线
     int dStart_id1 = std::get<0>(dStart);
-    if (dStart_id1 > 0) {
+    int dStart_id2 = std::get<1>(dStart);
+    int dEnd_id1 = std::get<0>(dEnd);
+    int dEnd_id2 = std::get<1>(dEnd);
+    if (dStart_id1 <= 0) {
+        return;
+    }
+    if (dEnd_id1 <= 0) {
+        return;
+    }
+
+    if (dStart_id2 <= 0) {  //直达
+        auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
+        dStart_way1.p2 = dStart_node1;
+        dStart_node_tmp.ways.insert(&dStart_way1);
+        nodeClearList.push_back(dStart_node1);
+    } else {
         auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
         dStart_way1.p2 = dStart_node1;
         buildTmpWay(mesh, dStart_way1, wayStart, dStart_id1);
         dStart_node_tmp.ways.insert(&dStart_way1);
         nodeClearList.push_back(dStart_node1);
-    }
 
-    int dStart_id2 = std::get<1>(dStart);
-    if (dStart_id2 > 0) {
         auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();
         dStart_way2.p2 = dStart_node2;
         buildTmpWay(mesh, dStart_way2, wayStart, dStart_id2);
@@ -164,18 +180,20 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         nodeClearList.push_back(dStart_node2);
     }
 
-    int dEnd_id1 = std::get<0>(dEnd);
-    if (dEnd_id1 > 0) {
+    if (dEnd_id2 <= 0) {  //直达
+        auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
+        dTarget_way1.p2 = dEnd_node1;
+        dTarget_node_tmp.ways.insert(&dTarget_way1);
+        dEnd_node1->tmpways.insert(&dTarget_way1);
+        nodeClearList.push_back(dEnd_node1);
+    } else {
         auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
         dTarget_way1.p2 = dEnd_node1;
         buildTmpWay(mesh, dTarget_way1, wayEnd, dEnd_id1);
         dTarget_node_tmp.ways.insert(&dTarget_way1);
         dEnd_node1->tmpways.insert(&dTarget_way1);
         nodeClearList.push_back(dEnd_node1);
-    }
 
-    int dEnd_id2 = std::get<1>(dEnd);
-    if (dEnd_id2 > 0) {
         auto dEnd_node2 = mesh.nodes.at(dEnd_id2 - 1).get();
         dTarget_way2.p2 = dEnd_node2;
         buildTmpWay(mesh, dTarget_way2, wayEnd, dEnd_id2);

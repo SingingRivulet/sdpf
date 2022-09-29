@@ -63,26 +63,30 @@ struct context {
     inline void updateMesh() {
         if (mesh) {
             delete mesh;
+            mesh = nullptr;
         }
         if (tree) {
             delete tree;
+            tree = nullptr;
         }
-        tree = new kdtree::tree(points, 2);
-        //for (auto& it : points) {
-        //    printf("point:(%lf,%lf)\n", it.at(0), it.at(1));
-        //}
-        //tree->printKdTree();
-        mesh = new navmesh::navmesh(128, 128);
-        navmesh::buildSdfMap(*mesh, *tree);
-        std::vector<ivec2> starts;
-        navmesh::buildIdMap(*mesh, starts, minPathWith);
-        navmesh::removeWaste(*mesh, starts);
+        if (!points.empty()) {
+            tree = new kdtree::tree(points, 2);
+            //for (auto& it : points) {
+            //    printf("point:(%lf,%lf)\n", it.at(0), it.at(1));
+            //}
+            //tree->printKdTree();
+            mesh = new navmesh::navmesh(128, 128);
+            navmesh::buildSdfMap(*mesh, *tree);
+            std::vector<ivec2> starts;
+            navmesh::buildIdMap(*mesh, starts, minPathWith);
+            navmesh::removeWaste(*mesh, starts);
 
-        //for (auto& it : starts) {
-        //    printf("tops:(%d,%d)\n", it.x, it.y);
-        //}
-        navmesh::buildNodeBlock(*mesh, starts);
-        navmesh::buildNavFlowField(*mesh, minPathWith);
+            //for (auto& it : starts) {
+            //    printf("tops:(%d,%d)\n", it.x, it.y);
+            //}
+            navmesh::buildNodeBlock(*mesh, starts);
+            navmesh::buildNavFlowField(*mesh, minPathWith);
+        }
     }
     inline void render() {
         window_map();
@@ -109,9 +113,9 @@ struct context {
                 }
                 if (showWays) {
                     drawWays(*mesh, p0);
-                    drawPath(way_begin, p0, ImColor(ImVec4(1.0f, 0.0f, 0.0f, 1.0f)));
-                    drawPath(way_target, p0, ImColor(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)));
                     drawPath(way_pathfinding, p0, ImColor(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)));
+                    drawPath(way_begin, p0, ImColor(ImVec4(1.0f, 0.0f, 0.0f, 1.0f)), 2.0);
+                    drawPath(way_target, p0, ImColor(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)), 2.0);
                 }
             }
             drawPoints(points, ImColor(ImVec4(1.0f, 1.0f, 0.0f, 1.0f)), p0);
