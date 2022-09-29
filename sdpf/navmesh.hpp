@@ -62,28 +62,54 @@ inline void buildMeshFlowField(navmesh& mesh, node* target) {
     que.push(target);
     std::set<int> connect;
     while (!que.empty()) {
-        const auto& node = que.front();
-        node->flowFieldFlag = mesh.searchMap_id;
+        const auto& node_search = que.front();
+        if (node_search->flowFieldFlag != mesh.searchMap_id) {
+            node_search->flowFieldFlag = mesh.searchMap_id;
+            //printf("node_search->id=%d\n", node_search->id);
 
-#define processNode                                              \
-    sdpf::navmesh::node* targetNavNode;                          \
-    if (it->p1 == node) {                                        \
-        targetNavNode = it->p2;                                  \
-    } else {                                                     \
-        targetNavNode = it->p1;                                  \
-    }                                                            \
-    if (targetNavNode->flowFieldFlag != mesh.searchMap_id) {     \
-        targetNavNode->flowValue = node->flowValue + it->length; \
-        targetNavNode->flowDir = it;                             \
-        que.push(targetNavNode);                                 \
-    }
-        for (auto it : node->ways) {
-            processNode;
+            node* targetNavNode;
+            double minLen = INFINITY;
+            node_search->flowDir = nullptr;
+            for (auto& it : node_search->ways) {
+                if (it->p1 == node_search) {
+                    targetNavNode = it->p2;
+                } else {
+                    targetNavNode = it->p1;
+                }
+                if (targetNavNode->flowFieldFlag == mesh.searchMap_id) {
+                    if (targetNavNode->flowValue < minLen) {
+                        minLen = targetNavNode->flowValue;
+                        node_search->flowDir = it;
+                    }
+                } else {
+                    que.push(targetNavNode);
+                }
+            }
+            for (auto& it : node_search->tmpways) {
+                if (it->p1 == node_search) {
+                    targetNavNode = it->p2;
+                } else {
+                    targetNavNode = it->p1;
+                }
+                if (targetNavNode->flowFieldFlag == mesh.searchMap_id) {
+                    if (targetNavNode->flowValue < minLen) {
+                        minLen = targetNavNode->flowValue;
+                        node_search->flowDir = it;
+                    }
+                } else {
+                    que.push(targetNavNode);
+                }
+            }
+            if (node_search == target) {
+                node_search->flowValue = 0;
+            } else {
+                if (node_search->flowDir) {
+                    node_search->flowValue = node_search->flowDir->length + minLen;
+                } else {
+                    node_search->flowValue = INFINITY;
+                }
+            }
         }
-        for (auto it : node->tmpways) {
-            processNode;
-        }
-#undef processNode
 
         que.pop();
     }
@@ -410,6 +436,8 @@ inline void buildPath(navmesh& mesh,
             std::unique_ptr<way> l(new way);
             l->p1 = mesh.nodes.at(begin_id - 1).get();
             l->p2 = mesh.nodes.at(target_id - 1).get();
+
+            l->length = lenSum;
 
             l->minWidth = minWidth;
             for (auto& point : path) {
