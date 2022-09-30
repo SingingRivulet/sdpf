@@ -94,6 +94,14 @@ astar.hpp
 navmesh.hpp
 ../sdpf/navmesh.hpp
 
+../sdpf/pathopt.hpp
+algorithm
+-
+vector
+-
+sdf.hpp
+../sdpf/sdf.hpp
+
 ../sdpf/pointcloud.hpp
 kdtree.hpp
 ../sdpf/kdtree.hpp
@@ -129,6 +137,8 @@ math.h
 /home/ubuntu/project/sdfpathfinding/renderer/drawContext.hpp
 pathfinding.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/pathfinding.hpp
+pathopt.hpp
+/home/ubuntu/project/sdfpathfinding/renderer/pathopt.hpp
 textureGen.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/textureGen.hpp
 

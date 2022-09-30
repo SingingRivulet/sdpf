@@ -323,7 +323,9 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         }
         lastNode = n->id;
     });
-    */
+    //a*从起点开始搜索，从终点开始构建路线，完成后需要翻转路线
+    //流场寻路从终点开始搜索，从起点开始构建路线，故无须此操作
     std::reverse(path.begin(), path.end());
+    */
 }
 }  // namespace sdpf::pathfinding

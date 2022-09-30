@@ -154,6 +154,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/field.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/kdtree.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/navmesh.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathfinding.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathopt.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pointcloud.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/sdf.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/vec2.hpp

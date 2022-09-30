@@ -11,14 +11,27 @@ inline bool rayMarch(sdf::sdf& map,      //导航地图
                      double path_width,  //线宽
                      vec2& nearestPoint  //距离边缘最近的点
 ) {
-    auto beginVecLen = std::min(map[begin], begin.length(end));  //有向距离场性质：这个范围内一定没有物体
-    vec2 dir = end - begin;                                      //方向
-    vec2 dir_norm = dir / dir.norm();                            //方向的单位向量
-    vec2 nowPos = begin + dir_norm * beginVecLen;                //起点
-    auto nearestPoint_mindis = map[nowPos];                      //初始化最短距离
-    nearestPoint = nowPos;                                       //最短距离的位置
-    while (nowPos.length2(end) > path_width * path_width) {      //大于路宽的平方说明没到目的地
-        double area_r = map[nowPos];                             //空白的半径
+    auto beginDis = map[begin];
+    if (beginDis < path_width) {
+        return true;
+    }
+    auto dirLen = begin.length(end);
+    if (dirLen <= 0.00001) {
+        //原地放线
+        if (beginDis > path_width) {
+            nearestPoint = begin;
+            return true;
+        }
+    }
+    auto beginVecLen = std::min(beginDis, dirLen);  //有向距离场性质：这个范围内一定没有物体
+
+    vec2 dir = end - begin;                                  //方向
+    vec2 dir_norm = dir / dir.norm();                        //方向的单位向量
+    vec2 nowPos = begin + dir_norm * beginVecLen;            //起点
+    auto nearestPoint_mindis = map[nowPos];                  //初始化最短距离
+    nearestPoint = nowPos;                                   //最短距离的位置
+    while (nowPos.length2(end) > path_width * path_width) {  //大于路宽的平方说明没到目的地
+        double area_r = map[nowPos];                         //空白的半径
         if (area_r < nearestPoint_mindis) {
             nearestPoint_mindis = area_r;
             nearestPoint = nowPos;
@@ -44,16 +57,20 @@ inline int getFarPoint(const std::vector<vec2>& path_in,  //原始路线
 ) {
     auto path_len = path_in.size();
     const int search_left = nowPathId;
-    const int search_right = path_len - 1;
+    const int search_right = path_len;
     int left = search_left;
     int right = search_right;
     int newPathId = -1;
-    while (left < right) {  //二分搜索
-        int mid = (left + right) / 2;
+    while (left < right - 1) {  //二分搜索
+        int mid = round((left + right) / 2.);
+        int id = mid;
+        if (id > path_len - 1) {
+            id = path_len - 1;
+        }
         vec2 nearestPoint;
         //发射光线
         if (rayMarch(map,
-                     nowPoint, path_in.at(mid),
+                     nowPoint, path_in.at(id),
                      path_width, nearestPoint)) {
             //如果发生碰撞，nearestPoint为无效值，区间往前
             right = mid;
@@ -64,7 +81,7 @@ inline int getFarPoint(const std::vector<vec2>& path_in,  //原始路线
             newPathId = mid;
         }
     }
-    if (newPathId == -1) {
+    if (newPathId == -1 || newPathId == nowPathId) {
         //保底方案
         newPathId = search_left;
         vec2 nearestPoint;
@@ -103,6 +120,7 @@ inline void optPath(const std::vector<vec2>& path_in,  //原始路线
         vec2 tmpPoint;
         nowPathId = getFarPoint(path_in, map, path_width,
                                 nowPathId, nowPoint, tmpPoint);
+        path_out.push_back(tmpPoint);
         nowPoint = tmpPoint;
     }
     path_out.push_back(path_in.at(path_len - 1));  //终点

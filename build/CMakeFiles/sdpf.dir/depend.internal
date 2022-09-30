@@ -155,6 +155,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o
  ../sdpf/kdtree.hpp
  ../sdpf/navmesh.hpp
  ../sdpf/pathfinding.hpp
+ ../sdpf/pathopt.hpp
  ../sdpf/pointcloud.hpp
  ../sdpf/sdf.hpp
  ../sdpf/vec2.hpp
