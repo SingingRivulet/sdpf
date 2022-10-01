@@ -1,5 +1,4 @@
 #pragma once
-#include <functional>
 #include "navmesh.hpp"
 //寻路
 namespace sdpf {

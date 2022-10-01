@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project("sdpf")
 
 #set(CMAKE_CXX_FLAGS "-std=c++20 -ggdb")
-set(CMAKE_CXX_FLAGS "-std=c++20 -ggdb -DLUA_USE_DLOPEN")
+set(CMAKE_CXX_FLAGS "-std=c++20 -Wall -fopenmp -O3 -DLUA_USE_DLOPEN")
 set(CMAKE_C_FLAGS "-DLUA_USE_DLOPEN")
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-E -fopenmp")
@@ -27,6 +27,7 @@ include_directories(
 
 add_executable(sdpf
     ./renderer/main.cpp
+    ./sdpf/KDTree.cpp
 
     ./dep/imgui/imgui.cpp
     ./dep/imgui/imgui_draw.cpp

@@ -148,10 +148,11 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/backends/imgui_impl_sdl.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/backends/imgui_impl_sdlrenderer.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imconfig.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imgui.h
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/KDTree.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar_array.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/field.hpp
-CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/kdtree.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/loader.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/navmesh.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathfinding.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathopt.hpp
@@ -161,4 +162,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/vec2.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/drawContext.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/main.cpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/textureGen.hpp
+
+CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.cpp
+CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.hpp
 

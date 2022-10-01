@@ -12,6 +12,8 @@ struct field {  //运行阶段为只读数据结构
     int width = 0;
     int height = 0;
 
+    using element_t = T;
+
     inline field(int w, int h) {
         data = new T[w * h];
         width = w;

@@ -149,10 +149,11 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o
  ../dep/imgui/backends/imgui_impl_sdlrenderer.h
  ../dep/imgui/imconfig.h
  ../dep/imgui/imgui.h
+ ../sdpf/KDTree.hpp
  ../sdpf/astar.hpp
  ../sdpf/astar_array.hpp
  ../sdpf/field.hpp
- ../sdpf/kdtree.hpp
+ ../sdpf/loader.hpp
  ../sdpf/navmesh.hpp
  ../sdpf/pathfinding.hpp
  ../sdpf/pathopt.hpp
@@ -162,3 +163,6 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o
  /home/ubuntu/project/sdfpathfinding/renderer/drawContext.hpp
  /home/ubuntu/project/sdfpathfinding/renderer/main.cpp
  /home/ubuntu/project/sdfpathfinding/renderer/textureGen.hpp
+CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o
+ /home/ubuntu/project/sdfpathfinding/sdpf/KDTree.cpp
+ /home/ubuntu/project/sdfpathfinding/sdpf/KDTree.hpp

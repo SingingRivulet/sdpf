@@ -101,7 +101,7 @@ inline void step(context& ctx, const callback_c& callback) {
             return;
         } else {
             double minf = -1;
-            node* min;
+            node* min = nullptr;
             //openlist中找一个f最小的
             for (auto it : ctx.openlist) {
                 if (minf == -1) {
@@ -114,12 +114,14 @@ inline void step(context& ctx, const callback_c& callback) {
                     }
                 }
             }
-            ctx.processing = min;
-            ctx.openlist.erase(min->position);
+            if (min) {
+                ctx.processing = min;
+                ctx.openlist.erase(min->position);
+            }
         }
     } else {
         double minf = -1;
-        node* min;
+        node* min = nullptr;
         //ns中找一个f最小的
         for (auto it : ns) {
             if (heuristic(it->position, ctx.target) <= 1) {
@@ -137,8 +139,10 @@ inline void step(context& ctx, const callback_c& callback) {
                 }
             }
         }
-        ctx.processing = min;
-        ctx.openlist.erase(min->position);
+        if (min) {
+            ctx.processing = min;
+            ctx.openlist.erase(min->position);
+        }
     }
 }
 }  // namespace sdpf::astar_array

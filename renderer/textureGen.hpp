@@ -6,18 +6,19 @@
 #include <imgui_impl_sdlrenderer.h>
 #include <filesystem>
 #include <iostream>
+#include "loader.hpp"
 #include "navmesh.hpp"
 namespace sdpf::renderer {
 
 template <class T>
 concept vsdfMap = requires(T& map) {
-    sdpf::vec2(std::get<0>(map.at(int(), int())));
-    sdpf::vec2(std::get<1>(map.at(int(), int())));
+    sdpf::vec2(map.at(int(), int()).pos);
+    sdpf::vec2(map.at(int(), int()).dir);
 };
 
 template <class T>
 concept pathNavMap = requires(T& map) {
-    sdpf::ivec2(std::get<0>(map.at(int(), int())));
+    sdpf::ivec2(map.at(int(), int()).target);
 };
 
 template <class T>
@@ -117,14 +118,14 @@ inline void drawPoints(T& array, ImU32 col, const ImVec2& p0) {
 
 template <vsdfMap T>
 constexpr bool getDir(T& map, int x, int y, ivec2& out) {
-    auto o = std::get<0>(map.at(x, y));
+    auto o = map.at(x, y).dir;
     out = ivec2(o.x, o.y);
     return true;
 }
 
 template <pathNavMap T>
 constexpr bool getDir(T& map, int x, int y, ivec2& out) {
-    auto pos = std::get<0>(map.at(x, y));
+    auto pos = map.at(x, y).target;
     out = pos - ivec2(x, y);
     return (pos.x >= 0 && pos.y >= 0);
 }

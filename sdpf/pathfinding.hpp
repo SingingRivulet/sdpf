@@ -12,15 +12,15 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
                         const ivec2& start,
                         int targetId) {
     bool rev = false;
-    bool lengthRev = false;
-    auto targetNode = mesh.nodes.at(targetId - 1).get();
+    //bool lengthRev = false;
+    //auto targetNode = mesh.nodes.at(targetId - 1).get();
     auto targetBlock = mesh.pathDisMap.at(start.x, start.y);
-    int a = std::get<0>(targetBlock);
-    int b = std::get<1>(targetBlock);
-    int startIndex = std::get<3>(targetBlock);
+    int a = targetBlock.firstNode;
+    int b = targetBlock.secondNode;
+    int startIndex = targetBlock.pointIndex;
     if (a == targetId) {
         rev = true;
-        lengthRev = true;
+        //lengthRev = true;
     } else if (b == targetId) {
     } else {
         return;
@@ -35,7 +35,7 @@ inline void buildTmpWay(navmesh::navmesh& mesh,
     if (it != mesh.ways.end()) {
         //printf("set path\n");
         auto& path = it->second->maxPath;
-        auto len = path.size();
+        int len = path.size();
         way.minWidth = it->second->minWidth;
         ivec2 last;
         bool first = true;
@@ -149,10 +149,10 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
     std::vector<navmesh::node*> nodeClearList;
 
     //构造临时路线
-    int dStart_id1 = std::get<0>(dStart);
-    int dStart_id2 = std::get<1>(dStart);
-    int dEnd_id1 = std::get<0>(dEnd);
-    int dEnd_id2 = std::get<1>(dEnd);
+    int dStart_id1 = dStart.firstNode;
+    int dStart_id2 = dStart.secondNode;
+    int dEnd_id1 = dEnd.firstNode;
+    int dEnd_id2 = dEnd.secondNode;
     if (dStart_id1 <= 0) {
         return;
     }
@@ -209,7 +209,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
     navmesh::buildMeshFlowField(mesh, &dTarget_node_tmp);  //流场寻路只需要终点
     //printf("dStart_node_tmp.id=%d\n", dStart_node_tmp.id);
     navmesh::node* targetNavNode = &dStart_node_tmp;
-    navmesh::node* last = nullptr;
+    //navmesh::node* last = nullptr;
     int count = 0;
     while (targetNavNode && targetNavNode->flowFieldFlag == mesh.searchMap_id) {
         auto w = targetNavNode->flowDir;
@@ -228,7 +228,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
                 }
                 printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
             }
-            last = targetNavNode;
+            //last = targetNavNode;
         } else {
             break;
         }

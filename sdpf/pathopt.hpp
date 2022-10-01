@@ -55,7 +55,7 @@ inline int getFarPoint(const std::vector<vec2>& path_in,  //原始路线
                        const vec2& nowPoint,              //当前位置
                        vec2& newPoint                     //更新位置
 ) {
-    auto path_len = path_in.size();
+    int path_len = path_in.size();
     const int search_left = nowPathId;
     const int search_right = path_len;
     int left = search_left;
@@ -107,7 +107,7 @@ inline void optPath(const std::vector<vec2>& path_in,  //原始路线
     if (path_in.empty()) {
         return;
     }
-    const auto path_len = path_in.size();
+    const int path_len = path_in.size();
     if (path_len <= 3) {  //路线太短，无须优化
         path_out = path_in;
         return;

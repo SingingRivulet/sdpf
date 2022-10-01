@@ -121,5 +121,5 @@ class vector2d {
 
 }  // namespace vec
 using vec2 = vec::vector2d<double>;
-using ivec2 = vec::vector2d<int>;
+using ivec2 = vec::vector2d<int32_t>;
 }  // namespace sdpf

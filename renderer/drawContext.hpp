@@ -6,7 +6,7 @@ namespace sdpf::renderer {
 
 struct context {
     navmesh::navmesh* mesh = nullptr;
-    kdtree::tree* tree = nullptr;
+    KDTree* tree = nullptr;
     double minPathWith = 8;
     bool showSDFMode = false;
     bool showVsdfMap = false;
@@ -15,14 +15,21 @@ struct context {
     bool showWays = true;
     bool showPathFindingWays = false;
     bool showOptWays = true;
-    std::vector<std::vector<double>> points{};
+    std::vector<point_t> points{};
     ivec2 point_begin = ivec2(-1, -1);
     ivec2 point_target = ivec2(-1, -1);
     std::vector<ivec2> way_begin{};
     std::vector<ivec2> way_target{};
     std::vector<ivec2> way_pathfinding{};
     std::vector<vec2> way_pathopt{};
-    ~context() {
+    inline context() {
+        loader::loadPoints(points, "datas/points.txt");
+        if (!points.empty()) {
+            tree = new KDTree(points);
+        }
+        mesh = loader::load("datas");
+    }
+    inline ~context() {
         if (mesh) {
             delete mesh;
         }
@@ -79,7 +86,7 @@ struct context {
             tree = nullptr;
         }
         if (!points.empty()) {
-            tree = new kdtree::tree(points, 2);
+            tree = new KDTree(points);
             //for (auto& it : points) {
             //    printf("point:(%lf,%lf)\n", it.at(0), it.at(1));
             //}
@@ -135,12 +142,12 @@ struct context {
                 if (point_begin.x >= 0 && point_begin.y >= 0) {
                     draw_list->AddCircleFilled(
                         ImVec2(point_begin.x * 5 + p0.x + 2, point_begin.y * 5 + p0.y + 2),
-                        16, ImColor(ImVec4(1.f, 0, 0, 1.0f)));
+                        8, ImColor(ImVec4(1.f, 0, 0, 1.0f)));
                 }
                 if (point_target.x >= 0 && point_target.y >= 0) {
                     draw_list->AddCircleFilled(
                         ImVec2(point_target.x * 5 + p0.x + 2, point_target.y * 5 + p0.y + 2),
-                        16, ImColor(ImVec4(0, 0, 1.f, 1.0f)));
+                        8, ImColor(ImVec4(0, 0, 1.f, 1.0f)));
                 }
             }
             drawPoints(points, ImColor(ImVec4(1.0f, 1.0f, 0.0f, 1.0f)), p0);
@@ -182,6 +189,12 @@ struct context {
             }
             if (ImGui::Button("清空点云")) {
                 points.clear();
+            }
+            if (ImGui::Button("保存")) {
+                if (mesh) {
+                    loader::save(*mesh, "datas");
+                    loader::savePoints(points, "datas/points.txt");
+                }
             }
 
             int v = viewMode;

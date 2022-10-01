@@ -339,6 +339,33 @@ renderer/main.cpp.s:
 	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/renderer/main.cpp.s
 .PHONY : renderer/main.cpp.s
 
+sdpf/KDTree.o: sdpf/KDTree.cpp.o
+
+.PHONY : sdpf/KDTree.o
+
+# target to build an object file
+sdpf/KDTree.cpp.o:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o
+.PHONY : sdpf/KDTree.cpp.o
+
+sdpf/KDTree.i: sdpf/KDTree.cpp.i
+
+.PHONY : sdpf/KDTree.i
+
+# target to preprocess a source file
+sdpf/KDTree.cpp.i:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.i
+.PHONY : sdpf/KDTree.cpp.i
+
+sdpf/KDTree.s: sdpf/KDTree.cpp.s
+
+.PHONY : sdpf/KDTree.s
+
+# target to generate assembly for a file
+sdpf/KDTree.cpp.s:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.s
+.PHONY : sdpf/KDTree.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -372,6 +399,9 @@ help:
 	@echo "... renderer/main.o"
 	@echo "... renderer/main.i"
 	@echo "... renderer/main.s"
+	@echo "... sdpf/KDTree.o"
+	@echo "... sdpf/KDTree.i"
+	@echo "... sdpf/KDTree.s"
 .PHONY : help
 
 

@@ -28,21 +28,52 @@ struct way {                            //连线
     double length = 0;                  //路线长度
 };
 
+struct pathNav {
+    ivec2 target{};
+    double cost = 0;
+    pathNav() = default;
+    pathNav(const pathNav&) = default;
+    inline pathNav(const ivec2& t, double c) {
+        target = t;
+        cost = c;
+    }
+};
+
+struct vectorDis {
+    vec2 dir{};
+    vec2 pos{};
+};
+
+struct pathDis {
+    int32_t firstNode = 0;
+    int32_t secondNode = 0;
+    int32_t pointIndex = 0;
+    double distance = 0;
+    pathDis() = default;
+    pathDis(const pathDis&) = default;
+    inline pathDis(int32_t f, int32_t s, double d, int32_t i) {
+        firstNode = f;
+        secondNode = s;
+        distance = d;
+        pointIndex = i;
+    }
+};
+
 struct navmesh {
     std::vector<std::unique_ptr<node>> nodes{};                        //节点
     std::map<std::pair<int32_t, int32_t>, std::unique_ptr<way>> ways;  //相连(id较小的排前面)
-    field<std::tuple<vec2, vec2>> vsdfMap;                             //向量距离场
     sdf::sdf sdfMap;                                                   //sdf
+    field<vectorDis> vsdfMap;                                          //向量距离场
     field<int32_t> idMap;                                              //地图上的节点id及道路信息
     field<int32_t> searchMap;                                          //搜索标识
+    field<pathDis> pathDisMap;                                         //路线离端点距离
+    field<pathNav> pathNavMap;                                         //导航至路上的流场
     int32_t searchMap_id = 1;
-    field<std::tuple<int32_t, int32_t, double, int>> pathDisMap;  //路线离端点距离
-    field<std::tuple<ivec2, double>> pathNavMap;                  //导航至路上的流场
     int width, height;
     double minItemSize = 2;  //最小物体的半径
     inline navmesh(int width, int height)
-        : vsdfMap(width, height),
-          sdfMap(width, height),
+        : sdfMap(width, height),
+          vsdfMap(width, height),
           idMap(width, height),
           searchMap(width, height),
           pathDisMap(width, height),
@@ -115,15 +146,15 @@ inline void buildMeshFlowField(navmesh& mesh, node* target) {
     }
 }
 
-inline void buildSdfMap(navmesh& mesh, kdtree::tree& tree) {
+inline void buildSdfMap(navmesh& mesh, KDTree& tree) {
 #pragma omp parallel for
     for (int i = 0; i < mesh.width; ++i) {
         for (int j = 0; j < mesh.height; ++j) {
-            std::tuple<vec2, vec2> sdfp;
-            pointcloud::getPointDis(tree, vec2(i, j), std::get<0>(sdfp), std::get<1>(sdfp));
+            vectorDis sdfp;
+            pointcloud::getPointDis(tree, vec2(i, j), sdfp.dir, sdfp.pos);
             //printf("(%d,%d)=>%f\n", i, j, v.norm());
             mesh.vsdfMap.at(i, j) = sdfp;
-            mesh.sdfMap.at(i, j) = std::get<0>(sdfp).norm();
+            mesh.sdfMap.at(i, j) = sdfp.dir.norm();
         }
     }
 }
@@ -132,15 +163,15 @@ inline double getCosPointDirDeg(navmesh& mesh, const ivec2& p1, const ivec2& p2)
     auto pt1 = mesh.vsdfMap.at(p1.x, p1.y);
     auto pt2 = mesh.vsdfMap.at(p2.x, p2.y);
 
-    auto pos1 = std::get<1>(pt1);
-    auto pos2 = std::get<1>(pt2);
+    auto pos1 = pt1.pos;
+    auto pos2 = pt2.pos;
     auto delta = pos1 - pos2;
     if (fabs(delta.x) + fabs(delta.y) < 0.0001) {  //是同一个点
         return INFINITY;
     }
 
-    auto d1 = std::get<0>(pt1);
-    auto d2 = std::get<0>(pt2);
+    auto d1 = pt1.dir;
+    auto d2 = pt2.dir;
 
     auto l1 = d1.norm();
     auto l2 = d2.norm();
@@ -191,14 +222,11 @@ inline void buildIdMap(navmesh& mesh, std::vector<ivec2>& startPoints, double mi
 
 inline bool isNode(navmesh& mesh, const ivec2& pos, int area = 2) {
     bool beginValue = false;
-    bool endValue = false;
     bool lastValue = false;
     bool first = true;
     int count = 0;
     //printf("isNode(%d,%d)\n", pos.x, pos.y);
     for (int i = -area + 1; i <= area; ++i) {
-        int x = pos.x + i;
-        int y = pos.y + area;
         double k = ((double)i) / area;
 
         bool val = true;
@@ -229,8 +257,6 @@ inline bool isNode(navmesh& mesh, const ivec2& pos, int area = 2) {
         lastValue = val;
     }
     for (int i = area - 1; i >= -area; --i) {
-        int x = pos.x + area;
-        int y = pos.y + i;
         double k = ((double)i) / area;
 
         bool val = true;
@@ -255,8 +281,6 @@ inline bool isNode(navmesh& mesh, const ivec2& pos, int area = 2) {
         lastValue = val;
     }
     for (int i = area - 1; i >= -area; --i) {
-        int x = pos.x + i;
-        int y = pos.y - area;
         double k = ((double)i) / area;
 
         bool val = true;
@@ -282,8 +306,6 @@ inline bool isNode(navmesh& mesh, const ivec2& pos, int area = 2) {
         lastValue = val;
     }
     for (int i = -area + 1; i <= area; ++i) {
-        int x = pos.x - area;
-        int y = pos.y + i;
         double k = ((double)i) / area;
 
         bool val = true;
@@ -422,10 +444,10 @@ inline void buildPath(navmesh& mesh,
             double delta_p2 = lenSum - delta_p1;
             if (delta_p1 > delta_p2) {
                 mesh.pathDisMap.at(pos.x, pos.y) =
-                    std::tuple<int32_t, int32_t, double, int>(begin_id, target_id, delta_p2, maxPath_index);
+                    pathDis(begin_id, target_id, delta_p2, maxPath_index);
             } else {
                 mesh.pathDisMap.at(pos.x, pos.y) =
-                    std::tuple<int32_t, int32_t, double, int>(target_id, begin_id, delta_p1, maxPath_index);
+                    pathDis(target_id, begin_id, delta_p1, maxPath_index);
             }
             ++maxPath_index;
         }
@@ -567,7 +589,7 @@ inline void buildNodeBlock(navmesh& mesh, const std::vector<ivec2>& points_block
             n->id = index;
             n->position.init(center.x, center.y);
             mesh.pathDisMap.at(center.x, center.y) =
-                std::tuple<int32_t, int32_t, double, int>(n->id, 0, 0, 0);
+                pathDis(n->id, 0, 0, 0);
             for (auto& point : block) {
                 auto x = point.x;
                 auto y = point.y;
@@ -585,20 +607,20 @@ inline void buildNodeBlock(navmesh& mesh, const std::vector<ivec2>& points_block
 
 //构建上路流场
 inline void buildNavFlowField(navmesh& mesh, double minPathWith) {
-    mesh.pathNavMap.setAll(std::tuple<ivec2, double>(ivec2(-1, -1), -1));
+    mesh.pathNavMap.setAll(pathNav(ivec2(-1, -1), -1));
     ++mesh.searchMap_id;
     std::queue<ivec2> que;
-#define processPoint                                                            \
-    mesh.searchMap.at(p.x, p.y) = mesh.searchMap_id;                            \
-    mesh.pathNavMap.at(p.x, p.y) = std::tuple<ivec2, double>(ivec2(-1, -1), 0); \
-    for (int i = -1; i <= 1; ++i) {                                             \
-        for (int j = -1; j <= 1; ++j) {                                         \
-            if (i != 0 && j != 0) {                                             \
-                int x = i + p.x;                                                \
-                int y = j + p.y;                                                \
-                que.push(ivec2(x, y));                                          \
-            }                                                                   \
-        }                                                                       \
+#define processPoint                                          \
+    mesh.searchMap.at(p.x, p.y) = mesh.searchMap_id;          \
+    mesh.pathNavMap.at(p.x, p.y) = pathNav(ivec2(-1, -1), 0); \
+    for (int i = -1; i <= 1; ++i) {                           \
+        for (int j = -1; j <= 1; ++j) {                       \
+            if (i != 0 && j != 0) {                           \
+                int x = i + p.x;                              \
+                int y = j + p.y;                              \
+                que.push(ivec2(x, y));                        \
+            }                                                 \
+        }                                                     \
     }
     for (auto& it : mesh.ways) {
         for (auto& p : it.second->maxPath) {
@@ -639,7 +661,7 @@ inline void buildNavFlowField(navmesh& mesh, double minPathWith) {
                                     if (pathWidth <= minPathWith) {
                                         wdelta += 1000. / pathWidth;  //太窄，逃离
                                     }
-                                    auto w = std::get<1>(pathNavMapVal) + wdelta;
+                                    auto w = pathNavMapVal.cost + wdelta;
 
                                     //printf("%d %d w=%lf\n", pos.x, pos.y, w);
                                     if (minConn_w < 0 || w < minConn_w) {
@@ -653,7 +675,7 @@ inline void buildNavFlowField(navmesh& mesh, double minPathWith) {
                 }
                 if (minConn_w > 0) {
                     mesh.pathNavMap.at(pos.x, pos.y) =
-                        std::tuple<ivec2, double>(minConn_pos, minConn_w);
+                        pathNav(minConn_pos, minConn_w);
                 }
             }
         }
@@ -699,7 +721,7 @@ inline bool toRoad(navmesh& mesh,
     while (conn_pos.x >= 0 || conn_pos.y >= 0) {
         pathPos.push_back(conn_pos);
         auto& pathNavMapValue = mesh.pathNavMap.at(conn_pos.x, conn_pos.y);
-        conn_pos = std::get<0>(pathNavMapValue);
+        conn_pos = pathNavMapValue.target;
     }
     if (pathPos.empty()) {
         return false;

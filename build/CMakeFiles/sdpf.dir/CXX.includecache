@@ -32,9 +32,17 @@ assert.h
 imgui_user.h
 ../dep/imgui/imgui_user.h
 
-../sdpf/astar.hpp
+../sdpf/KDTree.hpp
+algorithm
+-
 functional
 -
+memory
+-
+vector
+-
+
+../sdpf/astar.hpp
 navmesh.hpp
 ../sdpf/navmesh.hpp
 
@@ -54,15 +62,11 @@ stdexcept
 vec2.hpp
 ../sdpf/vec2.hpp
 
-../sdpf/kdtree.hpp
-fstream
+../sdpf/loader.hpp
+sys/stat.h
 -
-iostream
--
-string
--
-vector
--
+navmesh.hpp
+../sdpf/navmesh.hpp
 
 ../sdpf/navmesh.hpp
 list
@@ -103,8 +107,8 @@ sdf.hpp
 ../sdpf/sdf.hpp
 
 ../sdpf/pointcloud.hpp
-kdtree.hpp
-../sdpf/kdtree.hpp
+KDTree.hpp
+../sdpf/KDTree.hpp
 navmesh.hpp
 ../sdpf/navmesh.hpp
 
@@ -161,6 +165,8 @@ filesystem
 -
 iostream
 -
+loader.hpp
+/home/ubuntu/project/sdfpathfinding/renderer/loader.hpp
 navmesh.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/navmesh.hpp
 

@@ -7,6 +7,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o"
   "CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o"
   "CMakeFiles/sdpf.dir/renderer/main.cpp.o"
+  "CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o"
   "sdpf"
   "sdpf.pdb"
 )
