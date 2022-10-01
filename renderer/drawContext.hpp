@@ -137,7 +137,7 @@ struct context {
                     drawPath(way_target, p0, ImColor(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)), 2.0);
                 }
                 if (showOptWays) {
-                    drawPath(way_pathopt, p0, ImColor(ImVec4(1.0f, 0.0f, 1.0f, 1.0f)));
+                    drawPath(way_pathopt, p0, ImColor(ImVec4(1.0f, 0.0f, 1.0f, 1.0f)), 4.0, true);
                 }
                 if (point_begin.x >= 0 && point_begin.y >= 0) {
                     draw_list->AddCircleFilled(

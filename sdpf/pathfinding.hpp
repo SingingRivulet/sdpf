@@ -164,12 +164,14 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
         dStart_way1.p2 = dStart_node1;
         dStart_node_tmp.ways.insert(&dStart_way1);
+        dStart_node1->tmpways.insert(&dStart_way2);
         nodeClearList.push_back(dStart_node1);
     } else {
         auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
         dStart_way1.p2 = dStart_node1;
         buildTmpWay(mesh, dStart_way1, wayStart, dStart_id1);
         dStart_node_tmp.ways.insert(&dStart_way1);
+        dStart_node1->tmpways.insert(&dStart_way2);
         nodeClearList.push_back(dStart_node1);
 
         auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();

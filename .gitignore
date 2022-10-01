@@ -1,4 +1,4 @@
 /test
-/build
+/build/*
 *.gch
 *.o

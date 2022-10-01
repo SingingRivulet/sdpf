@@ -85,7 +85,7 @@ inline void drawNodes(navmesh::navmesh& map, const ImVec2& p0) {
 }
 
 template <typename T>
-inline void drawPath(const T& path, const ImVec2& p0, ImU32 col, int w = 4.0) {
+inline void drawPath(const T& path, const ImVec2& p0, ImU32 col, int w = 4.0, bool drawNode = false) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     ImVec2 last;
     bool first = true;
@@ -96,6 +96,13 @@ inline void drawPath(const T& path, const ImVec2& p0, ImU32 col, int w = 4.0) {
         }
         first = false;
         last = now;
+    }
+    if (drawNode) {
+        for (auto& point : path) {
+            draw_list->AddCircleFilled(
+                ImVec2(point.x * 5 + p0.x + 2, point.y * 5 + p0.y + 2),
+                w * 1.5, col);
+        }
     }
 }
 

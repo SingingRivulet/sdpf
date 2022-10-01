@@ -5,12 +5,12 @@
 namespace sdpf::pathopt {
 
 //发射光线
-inline bool rayMarch(sdf::sdf& map,      //导航地图
-                     const vec2& begin,  //起点
-                     const vec2& end,    //终点
-                     double path_width,  //线宽
-                     vec2& nearestPoint  //距离边缘最近的点
-) {
+inline bool rayMarch(sdf::sdf& map,       //导航地图
+                     const vec2& begin,   //起点
+                     const vec2& end,     //终点
+                     double path_width,   //线宽
+                     vec2& nearestPoint,  //距离边缘最近的点
+                     bool skip = false) {
     auto beginDis = map[begin];
     if (beginDis < path_width) {
         return true;
@@ -25,9 +25,12 @@ inline bool rayMarch(sdf::sdf& map,      //导航地图
     }
     auto beginVecLen = std::min(beginDis, dirLen);  //有向距离场性质：这个范围内一定没有物体
 
-    vec2 dir = end - begin;                                  //方向
-    vec2 dir_norm = dir / dir.norm();                        //方向的单位向量
-    vec2 nowPos = begin + dir_norm * beginVecLen;            //起点
+    vec2 dir = end - begin;            //方向
+    vec2 dir_norm = dir / dir.norm();  //方向的单位向量
+    vec2 nowPos = begin;               //起点
+    if (skip) {
+        nowPos += dir_norm * beginVecLen / 2;
+    }
     auto nearestPoint_mindis = map[nowPos];                  //初始化最短距离
     nearestPoint = nowPos;                                   //最短距离的位置
     while (nowPos.length2(end) > path_width * path_width) {  //大于路宽的平方说明没到目的地
@@ -83,17 +86,37 @@ inline int getFarPoint(const std::vector<vec2>& path_in,  //原始路线
     }
     if (newPathId == -1 || newPathId == nowPathId) {
         //保底方案
-        newPathId = search_left;
-        vec2 nearestPoint;
-        if (!rayMarch(map,
-                      nowPoint, path_in.at(newPathId),
-                      path_width, nearestPoint)) {
-            newPoint = nearestPoint;
-        } else {
-            //直接去下一个点
-            newPoint = path_in.at(search_left + 1);
-            return search_left + 1;
+        //newPathId = search_left;
+        //vec2 nearestPoint;
+        //if (!rayMarch(map,
+        //              nowPoint, path_in.at(newPathId),
+        //              path_width, nearestPoint, true)) {
+        //    newPoint = nearestPoint;
+        //    printf("skip\n");
+        //} else {
+        //    //直接去下一个点
+        //    newPoint = path_in.at(search_left + 1);
+        //    return search_left + 1;
+        //    printf("go next\n");
+        //}
+        auto targetPoint = path_in.at(search_left + 1);
+        newPoint = targetPoint;
+        auto startPoint = path_in.at(search_left);
+        auto dir = targetPoint - startPoint;
+        double left = 1.0, right = 0.0;
+        for (int i = 0; i < 8; ++i) {
+            double mid = (left + right) / 2;
+            vec2 nearestPoint;
+            if (rayMarch(map,
+                         startPoint + (dir * mid), targetPoint,
+                         path_width, nearestPoint)) {
+                left = mid;
+            } else {
+                right = mid;
+                newPoint = startPoint + (dir * mid);
+            }
         }
+        return search_left + 1;
     }
     return newPathId;
 }
