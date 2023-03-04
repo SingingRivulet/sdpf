@@ -366,6 +366,33 @@ sdpf/KDTree.cpp.s:
 	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.s
 .PHONY : sdpf/KDTree.cpp.s
 
+utils/hbb.o: utils/hbb.cpp.o
+
+.PHONY : utils/hbb.o
+
+# target to build an object file
+utils/hbb.cpp.o:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/utils/hbb.cpp.o
+.PHONY : utils/hbb.cpp.o
+
+utils/hbb.i: utils/hbb.cpp.i
+
+.PHONY : utils/hbb.i
+
+# target to preprocess a source file
+utils/hbb.cpp.i:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/utils/hbb.cpp.i
+.PHONY : utils/hbb.cpp.i
+
+utils/hbb.s: utils/hbb.cpp.s
+
+.PHONY : utils/hbb.s
+
+# target to generate assembly for a file
+utils/hbb.cpp.s:
+	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/utils/hbb.cpp.s
+.PHONY : utils/hbb.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -402,6 +429,9 @@ help:
 	@echo "... sdpf/KDTree.o"
 	@echo "... sdpf/KDTree.i"
 	@echo "... sdpf/KDTree.s"
+	@echo "... utils/hbb.o"
+	@echo "... utils/hbb.i"
+	@echo "... utils/hbb.s"
 .PHONY : help
 
 

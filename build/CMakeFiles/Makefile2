@@ -74,12 +74,12 @@ clean: CMakeFiles/sdpf.dir/clean
 CMakeFiles/sdpf.dir/all:
 	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/depend
 	$(MAKE) -f CMakeFiles/sdpf.dir/build.make CMakeFiles/sdpf.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target sdpf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target sdpf"
 .PHONY : CMakeFiles/sdpf.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/sdpf.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/project/sdfpathfinding/build/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/project/sdfpathfinding/build/CMakeFiles 11
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/sdpf.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/project/sdfpathfinding/build/CMakeFiles 0
 .PHONY : CMakeFiles/sdpf.dir/rule

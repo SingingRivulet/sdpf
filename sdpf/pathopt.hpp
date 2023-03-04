@@ -50,6 +50,9 @@ inline bool rayMarch(sdf::sdf& map,       //导航地图
     return false;
 }
 
+//动态导航
+inline void activeNavRayTest() {}
+
 //发射一系列光线扫描，获取最远的点
 inline int getFarPoint(const std::vector<vec2>& path_in,  //原始路线
                        sdf::sdf& map,                     //导航地图

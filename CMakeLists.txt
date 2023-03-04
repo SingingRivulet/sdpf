@@ -19,6 +19,7 @@ include_directories(
     ./
     ./renderer
     ./sdpf
+    ./utils
     ./dep/
     ./dep/imgui
     ./dep/imgui/backends
@@ -28,6 +29,7 @@ include_directories(
 add_executable(sdpf
     ./renderer/main.cpp
     ./sdpf/KDTree.cpp
+    ./utils/hbb.cpp
 
     ./dep/imgui/imgui.cpp
     ./dep/imgui/imgui_draw.cpp

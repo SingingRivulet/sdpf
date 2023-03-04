@@ -13,6 +13,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/ubuntu/project/sdfpathfinding/dep/imgui/imgui_widgets.cpp" "/home/ubuntu/project/sdfpathfinding/build/CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o"
   "/home/ubuntu/project/sdfpathfinding/renderer/main.cpp" "/home/ubuntu/project/sdfpathfinding/build/CMakeFiles/sdpf.dir/renderer/main.cpp.o"
   "/home/ubuntu/project/sdfpathfinding/sdpf/KDTree.cpp" "/home/ubuntu/project/sdfpathfinding/build/CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o"
+  "/home/ubuntu/project/sdfpathfinding/utils/hbb.cpp" "/home/ubuntu/project/sdfpathfinding/build/CMakeFiles/sdpf.dir/utils/hbb.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -21,6 +22,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../."
   ".././renderer"
   ".././sdpf"
+  ".././utils"
   ".././dep"
   ".././dep/imgui"
   ".././dep/imgui/backends"

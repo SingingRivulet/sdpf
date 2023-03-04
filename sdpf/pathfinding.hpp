@@ -1,6 +1,7 @@
 #pragma once
 #include <math.h>
 #include <stdexcept>
+#include "activeNav.hpp"
 #include "astar.hpp"
 #include "navmesh.hpp"
 
@@ -164,14 +165,14 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
         auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
         dStart_way1.p2 = dStart_node1;
         dStart_node_tmp.ways.insert(&dStart_way1);
-        dStart_node1->tmpways.insert(&dStart_way2);
+        dStart_node1->tmpways.insert(&dStart_way1);
         nodeClearList.push_back(dStart_node1);
     } else {
         auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
         dStart_way1.p2 = dStart_node1;
         buildTmpWay(mesh, dStart_way1, wayStart, dStart_id1);
         dStart_node_tmp.ways.insert(&dStart_way1);
-        dStart_node1->tmpways.insert(&dStart_way2);
+        dStart_node1->tmpways.insert(&dStart_way1);
         nodeClearList.push_back(dStart_node1);
 
         auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();
@@ -330,4 +331,194 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
     std::reverse(path.begin(), path.end());
     */
 }
+
+template <typename T>
+inline void buildNodePath(navmesh::navmesh& mesh,  //mesh
+                          T& activeNodes,          //节点
+                          vec2 target,             //终点
+                          int it_count = 512,      //迭代次数
+                          double minPathWidth = 8) {
+    std::vector<ivec2> pathWayTarget;
+    ivec2 wayEnd;
+    if (!navmesh::toRoad(mesh, ivec2(target.x, target.y), pathWayTarget, wayEnd)) {
+        return;
+    }
+
+    //计算宽度和路线长度
+    double wayTargetLen = 0;
+    double wayTargetMinWidth = INFINITY;
+    {
+        ivec2 last;
+        bool first = true;
+        for (auto& it : pathWayTarget) {
+            if (!first) {
+                wayTargetLen += it.length(last);
+            }
+            wayTargetMinWidth = std::min(wayTargetMinWidth, mesh.sdfMap.at(it.x, it.y));
+            first = false;
+            last = it;
+        }
+    }
+    auto& dEnd = mesh.pathDisMap.at(wayEnd.x, wayEnd.y);
+    //构造临时节点
+
+    navmesh::node dTarget_node_tmp;
+    dTarget_node_tmp.flowFieldFlag = 0;
+    dTarget_node_tmp.id = -2;
+    navmesh::way dTarget_way1, dTarget_way2;
+    dTarget_way1.maxPath = pathWayTarget;
+    dTarget_way1.length = wayTargetLen;
+    dTarget_way1.minWidth = wayTargetMinWidth;
+    dTarget_way1.p1 = &dTarget_node_tmp;
+    dTarget_way2.maxPath = pathWayTarget;
+    dTarget_way2.length = wayTargetLen;
+    dTarget_way2.minWidth = wayTargetMinWidth;
+    dTarget_way2.p1 = &dTarget_node_tmp;
+
+    std::vector<navmesh::node*> nodeClearList;
+
+    //构造临时路线
+    //int dStart_id1 = dStart.firstNode;
+    //int dStart_id2 = dStart.secondNode;
+    int dEnd_id1 = dEnd.firstNode;
+    int dEnd_id2 = dEnd.secondNode;
+    //if (dStart_id1 <= 0) {
+    //    return;
+    //}
+    if (dEnd_id1 <= 0) {
+        return;
+    }
+
+    if (dEnd_id2 <= 0) {  //直达
+        auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
+        dTarget_way1.p2 = dEnd_node1;
+        dTarget_node_tmp.ways.insert(&dTarget_way1);
+        dEnd_node1->tmpways.insert(&dTarget_way1);
+        nodeClearList.push_back(dEnd_node1);
+    } else {
+        auto dEnd_node1 = mesh.nodes.at(dEnd_id1 - 1).get();
+        dTarget_way1.p2 = dEnd_node1;
+        buildTmpWay(mesh, dTarget_way1, wayEnd, dEnd_id1);
+        dTarget_node_tmp.ways.insert(&dTarget_way1);
+        dEnd_node1->tmpways.insert(&dTarget_way1);
+        nodeClearList.push_back(dEnd_node1);
+
+        auto dEnd_node2 = mesh.nodes.at(dEnd_id2 - 1).get();
+        dTarget_way2.p2 = dEnd_node2;
+        buildTmpWay(mesh, dTarget_way2, wayEnd, dEnd_id2);
+        dTarget_node_tmp.ways.insert(&dTarget_way2);
+        dEnd_node2->tmpways.insert(&dTarget_way2);
+        nodeClearList.push_back(dEnd_node2);
+    }
+
+    //使用流场的寻路方式
+    printf("buildMeshFlowField\n");
+    navmesh::buildMeshFlowField(mesh, &dTarget_node_tmp);  //流场寻路只需要终点
+
+    for (auto& it : activeNodes) {
+        //利用流场求解道路上的起止点
+        it->active = (navmesh::toRoad(
+            mesh,
+            ivec2(it->startPos.x, it->startPos.y),
+            it->pathWayStart,
+            it->wayStart));
+        it->path.clear();
+        if (it->active) {
+            //计算宽度和路线长度
+            double wayStartLen = 0;
+            double wayStartMinWidth = INFINITY;
+            {
+                ivec2 last;
+                bool first = true;
+                for (auto& it : it->pathWayStart) {
+                    if (!first) {
+                        wayStartLen += it.length(last);
+                    }
+                    wayStartMinWidth = std::min(wayStartMinWidth, mesh.sdfMap.at(it.x, it.y));
+                    first = false;
+                    last = it;
+                }
+            }
+
+            it->path = it->pathWayStart;
+            auto& dStart = mesh.pathDisMap.at(it->wayStart.x, it->wayStart.y);
+
+            //构造临时路线
+            int dStart_id1 = dStart.firstNode;
+            int dStart_id2 = dStart.secondNode;
+
+            navmesh::node* targetNavNode = nullptr;
+
+            if (dStart_id2 <= 0) {  //直达
+                auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
+                targetNavNode = dStart_node1;
+            } else {
+                navmesh::way dStart_way1, dStart_way2;
+                dStart_way1.maxPath.clear();
+                dStart_way1.length = 0;
+                dStart_way1.minWidth = wayStartMinWidth;
+                dStart_way2.maxPath.clear();
+                dStart_way2.length = 0;
+                dStart_way2.minWidth = wayStartMinWidth;
+
+                auto dStart_node1 = mesh.nodes.at(dStart_id1 - 1).get();
+                dStart_way1.p2 = dStart_node1;
+                buildTmpWay(mesh, dStart_way1, it->wayStart, dStart_id1);
+                auto len_node1 = dStart_way1.length + dStart_node1->flowValue;
+
+                auto dStart_node2 = mesh.nodes.at(dStart_id2 - 1).get();
+                dStart_way2.p2 = dStart_node2;
+                buildTmpWay(mesh, dStart_way2, it->wayStart, dStart_id2);
+                auto len_node2 = dStart_way2.length + dStart_node2->flowValue;
+
+                //比较到两端的距离
+                if (len_node1 < len_node2) {
+                    for (auto& point : dStart_way1.maxPath) {
+                        it->path.push_back(point);
+                    }
+                    targetNavNode = dStart_node1;
+                } else {
+                    for (auto& point : dStart_way2.maxPath) {
+                        it->path.push_back(point);
+                    }
+                    targetNavNode = dStart_node2;
+                }
+            }
+
+            //构造路线
+            int count = 0;
+            while (targetNavNode && targetNavNode->flowFieldFlag == mesh.searchMap_id) {
+                auto w = targetNavNode->flowDir;
+                if (w) {
+                    auto& nodepath = w->maxPath;
+                    if (w->p1 == targetNavNode) {
+                        targetNavNode = w->p2;
+                        for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
+                            it->path.push_back(*itp);
+                        }
+                        printf("%d->%d length=%lf\n", w->p1->id, w->p2->id, w->length);
+                    } else {
+                        targetNavNode = w->p1;
+                        for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
+                            it->path.push_back(*itp);
+                        }
+                        printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
+                    }
+                    //last = targetNavNode;
+                } else {
+                    break;
+                }
+                ++count;
+                if (count > 512) {
+                    break;
+                }
+            }
+        }
+    }
+
+    for (auto it : nodeClearList) {
+        it->tmpways.clear();
+    }
+}
+
 }  // namespace sdpf::pathfinding

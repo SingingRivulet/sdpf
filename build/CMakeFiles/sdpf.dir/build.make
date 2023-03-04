@@ -83,9 +83,22 @@ CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.s"
 	/usr/local/gcc-10.2.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/project/sdfpathfinding/sdpf/KDTree.cpp -o CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.s
 
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: CMakeFiles/sdpf.dir/flags.make
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/hbb.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/sdpf.dir/utils/hbb.cpp.o"
+	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/utils/hbb.cpp.o -c /home/ubuntu/project/sdfpathfinding/utils/hbb.cpp
+
+CMakeFiles/sdpf.dir/utils/hbb.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdpf.dir/utils/hbb.cpp.i"
+	/usr/local/gcc-10.2.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ubuntu/project/sdfpathfinding/utils/hbb.cpp > CMakeFiles/sdpf.dir/utils/hbb.cpp.i
+
+CMakeFiles/sdpf.dir/utils/hbb.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdpf.dir/utils/hbb.cpp.s"
+	/usr/local/gcc-10.2.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/project/sdfpathfinding/utils/hbb.cpp -o CMakeFiles/sdpf.dir/utils/hbb.cpp.s
+
 CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o: ../dep/imgui/imgui.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/imgui.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.i: cmake_force
@@ -98,7 +111,7 @@ CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o: ../dep/imgui/imgui_draw.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/imgui_draw.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.i: cmake_force
@@ -111,7 +124,7 @@ CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o: ../dep/imgui/imgui_tables.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/imgui_tables.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.i: cmake_force
@@ -124,7 +137,7 @@ CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o: ../dep/imgui/imgui_widgets.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/imgui_widgets.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.i: cmake_force
@@ -137,7 +150,7 @@ CMakeFiles/sdpf.dir/dep/imgui/imgui_widgets.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.o: ../dep/imgui/imgui_demo.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/imgui_demo.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.i: cmake_force
@@ -150,7 +163,7 @@ CMakeFiles/sdpf.dir/dep/imgui/imgui_demo.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.o: ../dep/imgui/backends/imgui_impl_sdl.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/backends/imgui_impl_sdl.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.i: cmake_force
@@ -163,7 +176,7 @@ CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdl.cpp.s: cmake_force
 
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.o: CMakeFiles/sdpf.dir/flags.make
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.o: ../dep/imgui/backends/imgui_impl_sdlrenderer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.o"
 	/usr/local/gcc-10.2.0/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.o -c /home/ubuntu/project/sdfpathfinding/dep/imgui/backends/imgui_impl_sdlrenderer.cpp
 
 CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.i: cmake_force
@@ -178,6 +191,7 @@ CMakeFiles/sdpf.dir/dep/imgui/backends/imgui_impl_sdlrenderer.cpp.s: cmake_force
 sdpf_OBJECTS = \
 "CMakeFiles/sdpf.dir/renderer/main.cpp.o" \
 "CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o" \
+"CMakeFiles/sdpf.dir/utils/hbb.cpp.o" \
 "CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o" \
 "CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o" \
 "CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o" \
@@ -191,6 +205,7 @@ sdpf_EXTERNAL_OBJECTS =
 
 sdpf: CMakeFiles/sdpf.dir/renderer/main.cpp.o
 sdpf: CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o
+sdpf: CMakeFiles/sdpf.dir/utils/hbb.cpp.o
 sdpf: CMakeFiles/sdpf.dir/dep/imgui/imgui.cpp.o
 sdpf: CMakeFiles/sdpf.dir/dep/imgui/imgui_draw.cpp.o
 sdpf: CMakeFiles/sdpf.dir/dep/imgui/imgui_tables.cpp.o
@@ -202,7 +217,7 @@ sdpf: CMakeFiles/sdpf.dir/build.make
 sdpf: /usr/local/lib/libSDL2.so
 sdpf: /usr/lib/x86_64-linux-gnu/libSDL2_ttf.so
 sdpf: CMakeFiles/sdpf.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable sdpf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ubuntu/project/sdfpathfinding/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable sdpf"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sdpf.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

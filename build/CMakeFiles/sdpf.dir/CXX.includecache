@@ -42,6 +42,14 @@ memory
 vector
 -
 
+../sdpf/activeNav.hpp
+algorithm
+-
+vector
+-
+sdf.hpp
+../sdpf/sdf.hpp
+
 ../sdpf/astar.hpp
 navmesh.hpp
 ../sdpf/navmesh.hpp
@@ -93,6 +101,8 @@ math.h
 -
 stdexcept
 -
+activeNav.hpp
+../sdpf/activeNav.hpp
 astar.hpp
 ../sdpf/astar.hpp
 navmesh.hpp
@@ -169,4 +179,28 @@ loader.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/loader.hpp
 navmesh.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/navmesh.hpp
+
+/home/ubuntu/project/sdfpathfinding/utils/hbb.cpp
+hbb.h
+/home/ubuntu/project/sdfpathfinding/utils/hbb.h
+mempool.h
+/home/ubuntu/project/sdfpathfinding/utils/mempool.h
+
+/home/ubuntu/project/sdfpathfinding/utils/hbb.h
+math.h
+-
+cmath
+-
+algorithm
+-
+stdlib.h
+-
+stdio.h
+-
+
+/home/ubuntu/project/sdfpathfinding/utils/mempool.h
+mutex
+-
+atomic
+-
 

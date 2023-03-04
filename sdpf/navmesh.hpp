@@ -146,15 +146,39 @@ inline void buildMeshFlowField(navmesh& mesh, node* target) {
     }
 }
 
+inline vectorDis vsdf_box(const vec2& pos, int width, int height) {
+    vectorDis res;
+    double lens[] = {pos.y, height - pos.y, pos.x, width - pos.x};
+    vec2 poss[] = {vec2(pos.x, 0), vec2(pos.x, height),
+                   vec2(0, pos.y), vec2(width, pos.y)};
+    double minLen = INFINITY;
+    for (int i = 0; i < 4; ++i) {
+        if (lens[i] < minLen) {
+            minLen = lens[i];
+            res.pos = poss[i];
+            res.dir = res.pos - pos;
+        }
+    }
+    return res;
+}
+
 inline void buildSdfMap(navmesh& mesh, KDTree& tree) {
 #pragma omp parallel for
     for (int i = 0; i < mesh.width; ++i) {
         for (int j = 0; j < mesh.height; ++j) {
+            //点的位置
             vectorDis sdfp;
             pointcloud::getPointDis(tree, vec2(i, j), sdfp.dir, sdfp.pos);
-            //printf("(%d,%d)=>%f\n", i, j, v.norm());
-            mesh.vsdfMap.at(i, j) = sdfp;
-            mesh.sdfMap.at(i, j) = sdfp.dir.norm();
+            //边缘
+            auto boxsdf = vsdf_box(vec2(i, j), mesh.width, mesh.height);
+            //选距离最短的
+            if (sdfp.dir.norm() < boxsdf.dir.norm()) {
+                mesh.vsdfMap.at(i, j) = sdfp;
+                mesh.sdfMap.at(i, j) = sdfp.dir.norm();
+            } else {
+                mesh.vsdfMap.at(i, j) = boxsdf;
+                mesh.sdfMap.at(i, j) = boxsdf.dir.norm();
+            }
         }
     }
 }

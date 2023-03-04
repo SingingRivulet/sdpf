@@ -149,6 +149,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/backends/imgui_impl_sdlren
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imconfig.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../dep/imgui/imgui.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/KDTree.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/activeNav.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/astar_array.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/field.hpp
@@ -165,4 +166,8 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/textureGen.hpp
 
 CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.cpp
 CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.hpp
+
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/hbb.cpp
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/hbb.h
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/mempool.h
 
