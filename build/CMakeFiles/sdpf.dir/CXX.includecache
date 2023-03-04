@@ -47,6 +47,8 @@ algorithm
 -
 vector
 -
+hbb.h
+../sdpf/hbb.h
 sdf.hpp
 ../sdpf/sdf.hpp
 
@@ -113,6 +115,8 @@ algorithm
 -
 vector
 -
+activeNav.hpp
+../sdpf/activeNav.hpp
 sdf.hpp
 ../sdpf/sdf.hpp
 
@@ -148,6 +152,20 @@ vec2.hpp
 math.h
 -
 
+../utils/hbb.h
+math.h
+-
+stdio.h
+-
+stdlib.h
+-
+algorithm
+-
+cmath
+-
+vec2.hpp
+../utils/vec2.hpp
+
 /home/ubuntu/project/sdfpathfinding/renderer/drawContext.hpp
 pathfinding.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/pathfinding.hpp
@@ -179,28 +197,4 @@ loader.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/loader.hpp
 navmesh.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/navmesh.hpp
-
-/home/ubuntu/project/sdfpathfinding/utils/hbb.cpp
-hbb.h
-/home/ubuntu/project/sdfpathfinding/utils/hbb.h
-mempool.h
-/home/ubuntu/project/sdfpathfinding/utils/mempool.h
-
-/home/ubuntu/project/sdfpathfinding/utils/hbb.h
-math.h
--
-cmath
--
-algorithm
--
-stdlib.h
--
-stdio.h
--
-
-/home/ubuntu/project/sdfpathfinding/utils/mempool.h
-mutex
--
-atomic
--
 

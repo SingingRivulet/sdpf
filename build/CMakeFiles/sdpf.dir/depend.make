@@ -160,6 +160,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathopt.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pointcloud.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/sdf.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/vec2.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../utils/hbb.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/drawContext.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/main.cpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/textureGen.hpp
@@ -167,6 +168,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/textureGen.hpp
 CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.cpp
 CMakeFiles/sdpf.dir/sdpf/KDTree.cpp.o: ../sdpf/KDTree.hpp
 
+CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../sdpf/vec2.hpp
 CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/hbb.cpp
 CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/hbb.h
 CMakeFiles/sdpf.dir/utils/hbb.cpp.o: ../utils/mempool.h

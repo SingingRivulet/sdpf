@@ -419,7 +419,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,  //mesh
         //利用流场求解道路上的起止点
         it->active = (navmesh::toRoad(
             mesh,
-            ivec2(it->startPos.x, it->startPos.y),
+            ivec2(it->currentPos.x, it->currentPos.y),
             it->pathWayStart,
             it->wayStart));
         it->path.clear();

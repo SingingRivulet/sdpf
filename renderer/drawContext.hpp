@@ -15,11 +15,13 @@ struct context {
     bool showWays = true;
     bool showPathFindingWays = false;
     bool showOptWays = true;
+    bool activeMode = true;
     std::vector<point_t> points{};
     ivec2 point_target = ivec2(-1, -1);
     std::vector<ivec2> way_target{};
     //std::vector<ivec2> way_pathfinding{};
     std::vector<std::unique_ptr<activeNav::activeNode>> node_pathfindings{};
+    activeNav::activeContext activeNodes;
     inline context() {
         loader::loadPoints(points, "datas/points.txt");
         if (!points.empty()) {
@@ -28,6 +30,7 @@ struct context {
         mesh = loader::load("datas");
     }
     inline ~context() {
+        node_pathfindings.clear();  //必须先清空，不然可能导致activeNodes泄露
         if (mesh) {
             delete mesh;
         }
@@ -49,7 +52,8 @@ struct context {
         auto point_begin = ivec2(x / 5., y / 5.);
         ivec2 target;
         auto act = std::make_unique<activeNav::activeNode>();
-        act->startPos = vec2(point_begin.x, point_begin.y);
+        act->currentPos = vec2(point_begin.x, point_begin.y);
+        act->connect(&activeNodes);
         //navmesh::toRoad(*mesh, point_begin, act->pathWayStart, target);
         node_pathfindings.push_back(std::move(act));
         if (point_begin.x >= 0 && point_begin.x < mesh->width &&
@@ -67,7 +71,12 @@ struct context {
             for (auto& it : node_pathfinding->path) {
                 inPath.push_back(vec2(it.x, it.y));
             }
-            pathopt::optPath(inPath, mesh->sdfMap, 8, node_pathfinding->pathOpt);
+            if (activeMode) {
+                pathopt::optPath(inPath, mesh->sdfMap, activeNodes, node_pathfinding.get(),
+                                 8, node_pathfinding->pathOpt);
+            } else {
+                pathopt::optPath(inPath, mesh->sdfMap, 8, node_pathfinding->pathOpt);
+            }
         }
     }
     inline void setTarget(double x, double y) {
@@ -144,10 +153,10 @@ struct context {
                     if (showOptWays) {
                         drawPath(node_pathfinding->pathOpt, p0, ImColor(ImVec4(1.0f, 0.0f, 1.0f, 1.0f)), 4.0, true);
                     }
-                    if (node_pathfinding->startPos.x >= 0 && node_pathfinding->startPos.y >= 0) {
+                    if (node_pathfinding->currentPos.x >= 0 && node_pathfinding->currentPos.y >= 0) {
                         draw_list->AddCircleFilled(
-                            ImVec2(node_pathfinding->startPos.x * 5 + p0.x + 2,
-                                   node_pathfinding->startPos.y * 5 + p0.y + 2),
+                            ImVec2(node_pathfinding->currentPos.x * 5 + p0.x + 2,
+                                   node_pathfinding->currentPos.y * 5 + p0.y + 2),
                             8, ImColor(ImVec4(1.f, 0, 0, 1.0f)));
                     }
                     if (point_target.x >= 0 && point_target.y >= 0) {
