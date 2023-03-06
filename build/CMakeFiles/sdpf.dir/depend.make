@@ -159,6 +159,7 @@ CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathfinding.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pathopt.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/pointcloud.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/sdf.hpp
+CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/simulation.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../sdpf/vec2.hpp
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../utils/hbb.h
 CMakeFiles/sdpf.dir/renderer/main.cpp.o: ../renderer/drawContext.hpp

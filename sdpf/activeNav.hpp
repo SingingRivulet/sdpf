@@ -10,6 +10,7 @@ struct activeContext {
 };
 
 struct activeNode {
+    vec2 startPos;
     vec2 currentPos;
     ivec2 wayStart;
     std::vector<ivec2> path;
@@ -17,6 +18,7 @@ struct activeNode {
     double pathLength;
     std::vector<vec2> pathOpt;
     std::vector<vec2> pathLogger;
+    std::vector<vec2> simulationPath;
     HBB::boundCircle* box = nullptr;
     bool active;
     double r = 8;

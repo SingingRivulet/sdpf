@@ -208,7 +208,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
     //构造路线
     path.clear();
     //使用流场的寻路方式
-    printf("buildMeshFlowField\n");
+    //printf("buildMeshFlowField\n");
     navmesh::buildMeshFlowField(mesh, &dTarget_node_tmp);  //流场寻路只需要终点
     //printf("dStart_node_tmp.id=%d\n", dStart_node_tmp.id);
     navmesh::node* targetNavNode = &dStart_node_tmp;
@@ -223,13 +223,13 @@ inline void buildNodePath(navmesh::navmesh& mesh,    //mesh
                 for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
                     path.push_back(*itp);
                 }
-                printf("%d->%d length=%lf\n", w->p1->id, w->p2->id, w->length);
+                //printf("%d->%d length=%lf\n", w->p1->id, w->p2->id, w->length);
             } else {
                 targetNavNode = w->p1;
                 for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
                     path.push_back(*itp);
                 }
-                printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
+                //printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
             }
             //last = targetNavNode;
         } else {
@@ -412,7 +412,7 @@ inline void buildNodePath(navmesh::navmesh& mesh,  //mesh
     }
 
     //使用流场的寻路方式
-    printf("buildMeshFlowField\n");
+    //printf("buildMeshFlowField\n");
     navmesh::buildMeshFlowField(mesh, &dTarget_node_tmp);  //流场寻路只需要终点
 
     for (auto& it : activeNodes) {
@@ -496,13 +496,13 @@ inline void buildNodePath(navmesh::navmesh& mesh,  //mesh
                         for (auto itp = nodepath.begin(); itp != nodepath.end(); ++itp) {
                             it->path.push_back(*itp);
                         }
-                        printf("%d->%d length=%lf\n", w->p1->id, w->p2->id, w->length);
+                        //printf("%d->%d length=%lf\n", w->p1->id, w->p2->id, w->length);
                     } else {
                         targetNavNode = w->p1;
                         for (auto itp = nodepath.rbegin(); itp != nodepath.rend(); ++itp) {
                             it->path.push_back(*itp);
                         }
-                        printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
+                        //printf("%d->%d length=%lf\n", w->p2->id, w->p1->id, w->length);
                     }
                     //last = targetNavNode;
                 } else {

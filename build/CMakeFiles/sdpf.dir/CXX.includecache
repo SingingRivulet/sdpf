@@ -148,6 +148,12 @@ field.hpp
 vec2.hpp
 ../sdpf/vec2.hpp
 
+../sdpf/simulation.hpp
+navmesh.hpp
+../sdpf/navmesh.hpp
+pathopt.hpp
+../sdpf/pathopt.hpp
+
 ../sdpf/vec2.hpp
 math.h
 -
@@ -171,6 +177,8 @@ pathfinding.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/pathfinding.hpp
 pathopt.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/pathopt.hpp
+simulation.hpp
+/home/ubuntu/project/sdfpathfinding/renderer/simulation.hpp
 textureGen.hpp
 /home/ubuntu/project/sdfpathfinding/renderer/textureGen.hpp
 

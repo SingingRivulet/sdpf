@@ -210,8 +210,8 @@ inline void optPath(const std::vector<vec2>& path_in,    //原始路线
                     activeNav::activeContext& actNodes,  //动态导航索引
                     activeNav::activeNode* selfNode,     //自己的节点
                     double path_width,                   //路线宽度
-                    std::vector<vec2>& path_out          //输出路线
-) {
+                    std::vector<vec2>& path_out,         //输出路线
+                    double minLen = -1) {
     path_out.clear();
     if (path_in.empty()) {
         return;
@@ -225,17 +225,46 @@ inline void optPath(const std::vector<vec2>& path_in,    //原始路线
     int nowPathId = 1;  //在当前位置能看见的最远点
     vec2 nowPoint = path_in.at(0);
     path_out.push_back(nowPoint);
+    double lenSum = 0;
     while (nowPathId < path_len - 1) {
         vec2 tmpPoint;
         nowPathId = getFarPoint(path_in, map, actNodes, selfNode, path_width,
                                 nowPathId, nowPoint, tmpPoint);
+        path_out.push_back(tmpPoint);
+        lenSum += (tmpPoint - nowPoint).norm();
+        if (minLen > 0 && lenSum > minLen) {
+            return;
+        }
         if (nowPathId == -1) {
             return;
         }
-        path_out.push_back(tmpPoint);
         nowPoint = tmpPoint;
     }
     path_out.push_back(path_in.at(path_len - 1));  //终点
+}
+
+inline bool nextPos(const std::vector<vec2>& path_in,    //原始路线
+                    sdf::sdf& map,                       //导航地图
+                    activeNav::activeContext& actNodes,  //动态导航索引
+                    activeNav::activeNode* selfNode,     //自己的节点
+                    double path_width,                   //路线宽度
+                    vec2& path_out,                      //输出路线
+                    double vel = 4) {
+    std::vector<vec2> path_tmp;
+    optPath(path_in, map, actNodes, selfNode, path_width, path_tmp, 1);
+    path_out = selfNode->currentPos;
+    for (auto& it : path_tmp) {
+        auto delta = it - selfNode->currentPos;
+        if (delta.norm() > 0) {
+            if (delta.norm() > vel) {
+                path_out = selfNode->currentPos + delta * vel / delta.norm();
+                return true;
+            } else {
+                path_out = it;
+            }
+        }
+    }
+    return false;
 }
 
 }  // namespace sdpf::pathopt

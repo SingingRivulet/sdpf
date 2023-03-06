@@ -1,6 +1,7 @@
 #pragma once
 #include "pathfinding.hpp"
 #include "pathopt.hpp"
+#include "simulation.hpp"
 #include "textureGen.hpp"
 namespace sdpf::renderer {
 
@@ -16,6 +17,7 @@ struct context {
     bool showPathFindingWays = false;
     bool showOptWays = true;
     bool activeMode = true;
+    bool showSimWays = true;
     std::vector<point_t> points{};
     ivec2 point_target = ivec2(-1, -1);
     std::vector<ivec2> way_target{};
@@ -52,7 +54,7 @@ struct context {
         auto point_begin = ivec2(x / 5., y / 5.);
         ivec2 target;
         auto act = std::make_unique<activeNav::activeNode>();
-        act->currentPos = vec2(point_begin.x, point_begin.y);
+        act->startPos = vec2(point_begin.x, point_begin.y);
         act->connect(&activeNodes);
         //navmesh::toRoad(*mesh, point_begin, act->pathWayStart, target);
         node_pathfindings.push_back(std::move(act));
@@ -62,6 +64,9 @@ struct context {
         }
     }
     inline void updatePath() {
+        for (auto& it : node_pathfindings) {
+            it->currentPos = it->startPos;
+        }
         pathfinding::buildNodePath(
             *mesh,
             node_pathfindings,
@@ -153,18 +158,22 @@ struct context {
                     if (showOptWays) {
                         drawPath(node_pathfinding->pathOpt, p0, ImColor(ImVec4(1.0f, 0.0f, 1.0f, 1.0f)), 4.0, true);
                     }
-                    if (node_pathfinding->currentPos.x >= 0 && node_pathfinding->currentPos.y >= 0) {
+                    if (showSimWays) {
+                        drawPath(node_pathfinding->simulationPath, p0,
+                                 ImColor(ImVec4(1.0f, 0.8f, 0.2f, 1.0f)), 4.0, true);
+                    }
+                    if (node_pathfinding->startPos.x >= 0 && node_pathfinding->startPos.y >= 0) {
                         draw_list->AddCircleFilled(
-                            ImVec2(node_pathfinding->currentPos.x * 5 + p0.x + 2,
-                                   node_pathfinding->currentPos.y * 5 + p0.y + 2),
+                            ImVec2(node_pathfinding->startPos.x * 5 + p0.x + 2,
+                                   node_pathfinding->startPos.y * 5 + p0.y + 2),
                             8, ImColor(ImVec4(1.f, 0, 0, 1.0f)));
                     }
-                    if (point_target.x >= 0 && point_target.y >= 0) {
-                        draw_list->AddCircleFilled(
-                            ImVec2(point_target.x * 5 + p0.x + 2, point_target.y * 5 + p0.y + 2),
-                            8, ImColor(ImVec4(0, 0, 1.f, 1.0f)));
-                    }
                 }
+            }
+            if (point_target.x >= 0 && point_target.y >= 0) {
+                draw_list->AddCircleFilled(
+                    ImVec2(point_target.x * 5 + p0.x + 2, point_target.y * 5 + p0.y + 2),
+                    8, ImColor(ImVec4(0, 0, 1.f, 1.0f)));
             }
             drawPoints(points, ImColor(ImVec4(1.0f, 1.0f, 0.0f, 1.0f)), p0);
             if (ImGui::IsWindowHovered()) {
@@ -200,6 +209,14 @@ struct context {
             ImGui::Checkbox("显示路线", &showWays);
             ImGui::Checkbox("显示规划的路线", &showPathFindingWays);
             ImGui::Checkbox("显示优化的路线", &showOptWays);
+            ImGui::Checkbox("显示仿真的路线", &showSimWays);
+            {
+                bool lastStatus = activeMode;
+                ImGui::Checkbox("避让", &activeMode);
+                if (activeMode != lastStatus) {
+                    updatePath();
+                }
+            }
             if (ImGui::Button("生成地图")) {
                 updateMesh();
             }
@@ -214,6 +231,15 @@ struct context {
             }
             if (ImGui::Button("清空路线")) {
                 node_pathfindings.clear();
+            }
+            if (ImGui::Button("仿真")) {
+                if (point_target.x >= 0 && point_target.y >= 0) {
+                    simulation(
+                        activeNodes,
+                        *mesh,
+                        node_pathfindings,
+                        vec2(point_target.x, point_target.y));
+                }
             }
 
             int v = viewMode;
