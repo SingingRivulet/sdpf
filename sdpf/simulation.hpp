@@ -37,7 +37,7 @@ inline void simulation(activeNav::activeContext& ctx,
         }
         printf("step:%d processCount:%d\n", step, processCount);
         ++step;
-        if (processCount <= 0 || step > 16384) {
+        if (processCount <= 0 || step > 4096) {
             break;
         }
     }

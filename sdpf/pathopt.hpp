@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <iostream>
 #include <vector>
 #include "activeNav.hpp"
 #include "sdf.hpp"
@@ -152,8 +153,9 @@ inline int getFarPoint(const std::vector<vec2>& path_in,    //原始路线
     int left = search_left;
     int right = search_right;
     int newPathId = -1;
+    newPoint = nowPoint;
     while (left < right - 1) {  //二分搜索
-        int mid = round((left + right) / 2.);
+        int mid = floor((left + right) / 2.);
         int id = mid;
         if (id > path_len - 1) {
             id = path_len - 1;
@@ -176,36 +178,42 @@ inline int getFarPoint(const std::vector<vec2>& path_in,    //原始路线
             newPathId = mid;
         }
     }
-    if (newPathId == -1 || newPathId == nowPathId) {
-        auto targetPoint = path_in.at(search_left + 1);
-        newPoint = targetPoint;
-        auto startPoint = path_in.at(search_left);
-        auto dir = targetPoint - startPoint;
-        double left = 1.0, right = 0.0;
+    if (newPathId == -1) {
+        return -1;
+    }
+    if (newPathId >= (int)path_in.size() - 1) {
+        //最后一个点
+        newPoint = *path_in.rbegin();
+    } else {
+        const double search_left = 0.0;
+        const double search_right = 1.0;
+        double left = search_left;
+        double right = search_right;
+        auto target = path_in.at(newPathId + 1);
+        auto dir = path_in.at(newPathId) - nowPoint;
         for (int i = 0; i < 8; ++i) {
-            double mid = (left + right) / 2;
+            auto mid = (left + right) / 2.;
+            auto movePoint = nowPoint + dir * mid;
             vec2 nearestPoint;
-            auto rayBeginPoint = startPoint + (dir * mid);
-            if (activeNav::activeNavRayTest(actNodes,
-                                            rayBeginPoint,
-                                            targetPoint,
-                                            selfNode)) {
-                return -1;
-            }
+            //发射光线
             if (rayMarch(map,
-                         rayBeginPoint, targetPoint,
-                         path_width * 2, nearestPoint)) {
+                         movePoint, target,
+                         path_width, nearestPoint) ||
+                activeNav::activeNavRayTest(actNodes,
+                                            movePoint, target,
+                                            selfNode)) {
+                //如果发生碰撞，nearestPoint为无效值，区间往前
                 left = mid;
             } else {
+                //未发生碰撞，区间往后，同时更新位置
                 right = mid;
-                newPoint = rayBeginPoint;
+                newPoint = movePoint;
             }
         }
-        return search_left + 1;
     }
     return newPathId;
 }
-inline void optPath(const std::vector<vec2>& path_in,    //原始路线
+inline bool optPath(const std::vector<vec2>& path_in,    //原始路线
                     sdf::sdf& map,                       //导航地图
                     activeNav::activeContext& actNodes,  //动态导航索引
                     activeNav::activeNode* selfNode,     //自己的节点
@@ -214,16 +222,32 @@ inline void optPath(const std::vector<vec2>& path_in,    //原始路线
                     double minLen = -1) {
     path_out.clear();
     if (path_in.empty()) {
-        return;
+        return false;
     }
     const int path_len = path_in.size();
     if (path_len <= 3) {  //路线太短，无须优化
         path_out = path_in;
-        return;
+        return false;
+    }
+    //如果卡在障碍物里面，逃离障碍物
+    int startPathId = 0;
+    while (1) {
+        if (startPathId >= (int)path_in.size()) {
+            return false;
+        }
+        auto pos = path_in.at(startPathId);
+        if (map.at(pos.x, pos.y) > path_width) {
+            break;
+        }
+        ++startPathId;
     }
     //从第一个点开始搜索
-    int nowPathId = 1;  //在当前位置能看见的最远点
-    vec2 nowPoint = path_in.at(0);
+    int nowPathId = startPathId + 1;  //在当前位置能看见的最远点
+    int nowPos = startPathId;
+    if (startPathId != 0) {
+        path_out.push_back(path_in.at(0));
+    }
+    vec2 nowPoint = path_in.at(nowPos);
     path_out.push_back(nowPoint);
     double lenSum = 0;
     while (nowPathId < path_len - 1) {
@@ -232,15 +256,16 @@ inline void optPath(const std::vector<vec2>& path_in,    //原始路线
                                 nowPathId, nowPoint, tmpPoint);
         path_out.push_back(tmpPoint);
         lenSum += (tmpPoint - nowPoint).norm();
-        if (minLen > 0 && lenSum > minLen) {
-            return;
+        if (minLen > 0 && lenSum > minLen && (tmpPoint - selfNode->currentPos).norm() > minLen) {
+            return true;
         }
         if (nowPathId == -1) {
-            return;
+            return false;
         }
         nowPoint = tmpPoint;
     }
     path_out.push_back(path_in.at(path_len - 1));  //终点
+    return true;
 }
 
 inline bool nextPos(const std::vector<vec2>& path_in,    //原始路线
@@ -251,7 +276,7 @@ inline bool nextPos(const std::vector<vec2>& path_in,    //原始路线
                     vec2& path_out,                      //输出路线
                     double vel = 4) {
     std::vector<vec2> path_tmp;
-    optPath(path_in, map, actNodes, selfNode, path_width, path_tmp, 1);
+    bool res = optPath(path_in, map, actNodes, selfNode, path_width, path_tmp);
     path_out = selfNode->currentPos;
     for (auto& it : path_tmp) {
         auto delta = it - selfNode->currentPos;
@@ -264,7 +289,7 @@ inline bool nextPos(const std::vector<vec2>& path_in,    //原始路线
             }
         }
     }
-    return false;
+    return res;
 }
 
 }  // namespace sdpf::pathopt

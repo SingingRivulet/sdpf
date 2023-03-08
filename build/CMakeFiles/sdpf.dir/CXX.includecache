@@ -113,6 +113,8 @@ navmesh.hpp
 ../sdpf/pathopt.hpp
 algorithm
 -
+iostream
+-
 vector
 -
 activeNav.hpp
