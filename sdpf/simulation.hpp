@@ -3,9 +3,9 @@
 #include "pathopt.hpp"
 namespace sdpf {
 
-inline void simulation(activeNav::activeContext& ctx,
+inline void simulation(dynamicNav::dynamicContext& ctx,
                        navmesh::navmesh& mesh,
-                       std::vector<std::unique_ptr<activeNav::activeNode>>& activeNodes,
+                       std::vector<std::unique_ptr<dynamicNav::dynamicNode>>& activeNodes,
                        vec2 target,                     //终点
                        int pathfinding_it_count = 512,  //迭代次数
                        double minPathWidth = 8) {
@@ -16,6 +16,7 @@ inline void simulation(activeNav::activeContext& ctx,
     int step = 0;
     while (1) {
         int processCount = 0;
+        printf("it start\n");
         pathfinding::buildNodePath(mesh, activeNodes, target, pathfinding_it_count, minPathWidth);
         for (auto& node_pathfinding : activeNodes) {
             std::vector<vec2> inPath;

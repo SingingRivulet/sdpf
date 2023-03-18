@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include "mat.hpp"
 
 namespace sdpf {
 namespace vec {
@@ -116,6 +117,15 @@ class vector2d {
         return (
             (x * p.x) +
             (y * p.y));
+    }
+    inline auto rotate(double rt) const {
+        T rotMat[4];
+        T tmpVec[2], tmpVec_out[2];
+        tmpVec[0] = x;
+        tmpVec[1] = y;
+        mat::buildRotateMat2d(rt, rotMat);
+        mat::vec2xMat2(tmpVec, rotMat, tmpVec_out);
+        return vector2d<T>(tmpVec_out[0], tmpVec_out[1]);
     }
 };
 

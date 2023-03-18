@@ -98,6 +98,8 @@ class HBB {
             // 如果夹角为钝角
             if (s > 0) {
                 return (center - p1).norm();
+            } else if ((center.x - p2.x) * (p1.y - p2.y) - (center.y - p2.y) * (p1.x - p2.x) > 0) {
+                return (center - p2).norm();
             } else {
                 //计算直线上两点之间的距离
                 double d = (p2 - p1).norm();

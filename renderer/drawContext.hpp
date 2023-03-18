@@ -22,8 +22,8 @@ struct context {
     ivec2 point_target = ivec2(-1, -1);
     std::vector<ivec2> way_target{};
     //std::vector<ivec2> way_pathfinding{};
-    std::vector<std::unique_ptr<activeNav::activeNode>> node_pathfindings{};
-    activeNav::activeContext activeNodes;
+    std::vector<std::unique_ptr<dynamicNav::dynamicNode>> node_pathfindings{};
+    dynamicNav::dynamicContext activeNodes;
     inline context() {
         loader::loadPoints(points, "datas/points.txt");
         if (!points.empty()) {
@@ -53,7 +53,7 @@ struct context {
     inline void addActiveNode(double x, double y) {
         auto point_begin = ivec2(x / 5., y / 5.);
         ivec2 target;
-        auto act = std::make_unique<activeNav::activeNode>();
+        auto act = std::make_unique<dynamicNav::dynamicNode>();
         act->startPos = vec2(point_begin.x, point_begin.y);
         act->connect(&activeNodes);
         //navmesh::toRoad(*mesh, point_begin, act->pathWayStart, target);
@@ -76,12 +76,7 @@ struct context {
             for (auto& it : node_pathfinding->path) {
                 inPath.push_back(vec2(it.x, it.y));
             }
-            if (activeMode) {
-                pathopt::optPath(inPath, mesh->sdfMap, activeNodes, node_pathfinding.get(),
-                                 8, node_pathfinding->pathOpt);
-            } else {
-                pathopt::optPath(inPath, mesh->sdfMap, 8, node_pathfinding->pathOpt);
-            }
+            pathopt::optPath(inPath, mesh->sdfMap, 8, node_pathfinding->pathOpt);
         }
     }
     inline void setTarget(double x, double y) {
