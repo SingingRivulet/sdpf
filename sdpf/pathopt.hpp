@@ -275,7 +275,7 @@ inline bool avoid(sdf::sdf& map_static,
                     degree2rad(-60), degree2rad(0), len);
         return true;
     }
-    std::cout << "fail" << std::endl;
+    //std::cout << "fail" << std::endl;
     //左右均被遮挡，返回false
     return false;
 }

@@ -87,7 +87,7 @@ class HBB {
             auto theta = in->r + r;
             return theta * theta > mdelta;
         }
-        inline double rayDist(const vec2& p1, const vec2& p2) const {
+        inline double rayDist(const vec2& p1, const vec2& p2, int* status = nullptr) const {
             //如果两点相同，则输出一个点的坐标为垂足
             if (p1.x == p2.x && p1.y == p2.y) {
                 return (p1 - center).norm();
@@ -95,10 +95,20 @@ class HBB {
             // 根据向量外积计算有向面积，用来判断夹角。
             double s = (center.x - p1.x) * (p2.y - p1.y) - (center.y - p1.y) * (p2.x - p1.x);
 
+            if (status) {
+                *status = 0;
+            }
+
             // 如果夹角为钝角
             if (s > 0) {
+                if (status) {
+                    *status = 1;
+                }
                 return (center - p1).norm();
             } else if ((center.x - p2.x) * (p1.y - p2.y) - (center.y - p2.y) * (p1.x - p2.x) > 0) {
+                if (status) {
+                    *status = 2;
+                }
                 return (center - p2).norm();
             } else {
                 //计算直线上两点之间的距离

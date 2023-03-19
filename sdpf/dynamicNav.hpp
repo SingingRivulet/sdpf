@@ -91,8 +91,11 @@ inline bool dynamicNavRayTest(dynamicContext& map,                //导航地图
             if (box->data == self->selfNode) {
                 return;
             }
-            if (box->rayDist(self->begin, self->end) < box->r) {
-                self->res = true;
+            int status = 0;
+            if (box->rayDist(self->begin, self->end, &status) < box->r) {
+                if (status != 1) {
+                    self->res = true;
+                }
             }
         },
         &arg);
