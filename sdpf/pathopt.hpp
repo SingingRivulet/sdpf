@@ -12,7 +12,8 @@ inline bool rayMarch(sdf::sdf& map,       //导航地图
                      const vec2& end,     //终点
                      double path_width,   //线宽
                      vec2& nearestPoint,  //距离边缘最近的点
-                     bool skip = false) {
+                     bool skip = false,
+                     bool escape = false) {
     auto beginDis = map[begin];
     if (beginDis < path_width) {
         return true;
@@ -173,19 +174,26 @@ constexpr double degree2rad(double degree) {
     return degree * M_PI / 180;
 }
 
-inline bool fullNavRayTest(dynamicNav::dynamicContext& map_dynamic,  //动态地图
-                           sdf::sdf& map_static,                     //静态地图
-                           const vec2& end,                          //终点
-                           dynamicNav::dynamicNode* selfNode,        //自己的节点
-                           double range,
-                           double path_width) {
-    vec2 tmp;
-    return dynamicNav::dynamicNavRayTest(map_dynamic,
-                                         selfNode->currentPos,
-                                         end, selfNode, range) ||
-           rayMarch(map_static,
-                    selfNode->currentPos,
-                    end, path_width, tmp);
+inline bool moveRayTest(dynamicNav::dynamicContext& map_dynamic,  //动态地图
+                        sdf::sdf& map_static,                     //静态地图
+                        const vec2& end,                          //终点
+                        dynamicNav::dynamicNode* selfNode,        //自己的节点
+                        double range,
+                        double path_width) {
+    if (dynamicNav::dynamicNavRayTest(map_dynamic,
+                                      selfNode->currentPos,
+                                      end, selfNode, range)) {
+        //std::cout << "coll:dynamic" << std::endl;
+        return true;
+    }
+    //vec2 tmp;
+    //if (rayMarch(map_static,
+    //             selfNode->currentPos,
+    //             end, path_width, tmp)) {
+    //    std::cout << "coll:static" << std::endl;
+    //    return true;
+    //}
+    return false;
 }
 
 inline void avoidRotate(sdf::sdf& map_static,
@@ -195,8 +203,37 @@ inline void avoidRotate(sdf::sdf& map_static,
                         vec2& path_out,                           //输出路线
                         double vel,
                         double rotBegin,
-                        double rotEnd) {
+                        double rotEnd,
+                        double range) {
     //TODO
+    const double search_left = rotBegin;
+    const double search_right = rotEnd;
+    double left = search_left;
+    double right = search_right;
+
+    auto dir = path_out - selfNode->currentPos;
+
+    {
+        //初始状态
+        vec2 rotDir = dir.rotate(rotBegin);
+        path_out = rotDir + selfNode->currentPos;
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        //迭代8次
+        auto mid = (left + right) / 2.;
+        vec2 rotDir = dir.rotate(mid);
+        if (moveRayTest(map_dynamic, map_static,
+                        selfNode->currentPos + rotDir, selfNode,
+                        range, path_width)) {
+            //如果发生碰撞，区间往前
+            left = mid;
+        } else {
+            //未发生碰撞，区间往后，同时更新位置
+            right = mid;
+            path_out = rotDir + selfNode->currentPos;
+        }
+    }
 }
 
 inline bool avoid(sdf::sdf& map_static,
@@ -213,28 +250,32 @@ inline bool avoid(sdf::sdf& map_static,
         return false;
     }
     //先检查直接往前，无阻挡的话直接返回true
-    if (!fullNavRayTest(map_dynamic, map_static,
-                        path_out, selfNode, len, path_width)) {
+    if (!moveRayTest(map_dynamic, map_static,
+                     path_out, selfNode, len, path_width)) {
+        //std::cout << "front" << std::endl;
         return true;
     }
     //检查向左旋转60度，无遮挡的话往0度二分搜索，直到遮挡后返回true
     vec2 rt_left_dir = dir.rotate(degree2rad(60));
     vec2 rt_left = selfNode->currentPos + rt_left_dir;
-    if (!fullNavRayTest(map_dynamic, map_static,
-                        rt_left, selfNode, len, path_width)) {
+    if (!moveRayTest(map_dynamic, map_static,
+                     rt_left, selfNode, len, path_width)) {
+        //std::cout << "left" << std::endl;
         avoidRotate(map_static, map_dynamic, selfNode, path_width, path_out, vel,
-                    degree2rad(60), degree2rad(0));
+                    degree2rad(60), degree2rad(0), len);
         return true;
     }
     //若左边第一次存在遮挡，右边同理
     vec2 rt_right_dir = dir.rotate(degree2rad(-60));
     vec2 rt_right = selfNode->currentPos + rt_right_dir;
-    if (!fullNavRayTest(map_dynamic, map_static,
-                        rt_right, selfNode, len, path_width)) {
+    if (!moveRayTest(map_dynamic, map_static,
+                     rt_right, selfNode, len, path_width)) {
+        //std::cout << "right" << std::endl;
         avoidRotate(map_static, map_dynamic, selfNode, path_width, path_out, vel,
-                    degree2rad(-60), degree2rad(0));
+                    degree2rad(-60), degree2rad(0), len);
         return true;
     }
+    std::cout << "fail" << std::endl;
     //左右均被遮挡，返回false
     return false;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <math.h>
 #include <stdexcept>
-#include "activeNav.hpp"
+#include "dynamicNav.hpp"
 #include "astar.hpp"
 #include "navmesh.hpp"
 

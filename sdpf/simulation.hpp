@@ -16,7 +16,7 @@ inline void simulation(dynamicNav::dynamicContext& ctx,
     int step = 0;
     while (1) {
         int processCount = 0;
-        printf("it start\n");
+        //printf("it start\n");
         pathfinding::buildNodePath(mesh, activeNodes, target, pathfinding_it_count, minPathWidth);
         for (auto& node_pathfinding : activeNodes) {
             std::vector<vec2> inPath;
@@ -31,7 +31,7 @@ inline void simulation(dynamicNav::dynamicContext& ctx,
                 ++processCount;
             }
             node_pathfinding->simulationPath.push_back(node_pathfinding->currentPos);
-            printf("node_pathfinding->currentPos:(%f %f)\n", node_pathfinding->currentPos.x, node_pathfinding->currentPos.y);
+            //printf("node_pathfinding->currentPos:(%f %f)\n", node_pathfinding->currentPos.x, node_pathfinding->currentPos.y);
         }
         for (auto& node_pathfinding : activeNodes) {
             node_pathfinding->update();
